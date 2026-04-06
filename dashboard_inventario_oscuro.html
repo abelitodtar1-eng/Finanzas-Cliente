@@ -268,6 +268,33 @@ tr:hover td{background:rgba(255,255,255,.02);}
       <div class="pag-btns" id="pag-btns"></div>
     </div>
   </div>
+
+  <div class="grid2" style="margin-top:16px;">
+    <div class="chart-card">
+      <h3>🔥 Productos más vendidos</h3>
+      <table style="width:100%;font-size:.83rem;">
+        <thead><tr>
+          <th>#</th><th>Producto</th>
+          <th class="num">Salidas</th>
+          <th class="num">Entradas</th>
+          <th class="num">% Consumo</th>
+        </tr></thead>
+        <tbody id="inv-tbody-mas"></tbody>
+      </table>
+    </div>
+    <div class="chart-card">
+      <h3>📦 Productos menos vendidos</h3>
+      <table style="width:100%;font-size:.83rem;">
+        <thead><tr>
+          <th>#</th><th>Producto</th>
+          <th class="num">Salidas</th>
+          <th class="num">Entradas</th>
+          <th class="num">% Consumo</th>
+        </tr></thead>
+        <tbody id="inv-tbody-menos"></tbody>
+      </table>
+    </div>
+  </div>
 </div>
 
 <!-- ══ MOVIMIENTOS ══ -->
@@ -532,6 +559,33 @@ function goPage(p) { renderInv(filteredData, p); }
 
 renderInv(prods);
 
+function renderVentasCards(data){
+  const resumen={};
+  for(const m of data){
+    if(!resumen[m.prod]) resumen[m.prod]={prod:m.prod,entradas:0,salidas:0};
+    if(m.tipo==='ENTRADA') resumen[m.prod].entradas+=m.cant;
+    else resumen[m.prod].salidas+=m.cant;
+  }
+  const lista=Object.values(resumen)
+    .filter(r=>r.salidas>0||r.entradas>0)
+    .map(r=>({...r, pct:r.entradas>0?Math.round(r.salidas/r.entradas*100):0}))
+    .sort((a,b)=>b.salidas-a.salidas);
+
+  const row=(r,i)=>`<tr>
+    <td style="color:var(--muted);font-size:.76rem;">${i+1}</td>
+    <td style="font-weight:600;">${r.prod}</td>
+    <td class="num num-danger">${r.salidas}</td>
+    <td class="num num-ok">${r.entradas}</td>
+    <td class="num"><span class="pill ${r.pct>=80?'p-danger':r.pct>=50?'p-warn':'p-ok'}">${r.pct}%</span></td>
+  </tr>`;
+
+  const empty='<tr><td colspan="5" style="text-align:center;color:var(--muted);padding:14px;">Sin datos</td></tr>';
+  document.getElementById('inv-tbody-mas').innerHTML=lista.length?lista.slice(0,5).map((r,i)=>row(r,i)).join(''):empty;
+  document.getElementById('inv-tbody-menos').innerHTML=lista.length?[...lista].reverse().slice(0,5).map((r,i)=>row(r,i)).join(''):empty;
+}
+
+renderVentasCards(movs);
+
 function filtrar(){
   const cat=document.getElementById('fil-cat').value;
   const est=document.getElementById('fil-est').value;
@@ -628,7 +682,7 @@ async function initLive(){
     if(lp.length>0){
       // Actualizar tabla inventario
       renderInv(lp);
-      document.getElementById('fil-cnt').textContent=lp.length+' prods.';
+      renderVentasCards(lm);
 
       // Actualizar movimientos
       document.getElementById('lista-mv').innerHTML=lm.slice(0,30).map(m=>`
