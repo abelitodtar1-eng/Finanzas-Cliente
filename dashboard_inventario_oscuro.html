@@ -682,7 +682,8 @@ async function initLive(){
     if(lp.length>0){
       // Actualizar tabla inventario
       renderInv(lp);
-      renderVentasCards(lm);
+      // Cards de ventas: usar live si tiene movimientos, sino el historial estático
+      renderVentasCards(lm.length > 0 ? lm : movs);
 
       // Actualizar movimientos
       document.getElementById('lista-mv').innerHTML=lm.slice(0,30).map(m=>`
