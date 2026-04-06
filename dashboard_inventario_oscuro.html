@@ -44,6 +44,14 @@ main{padding:22px 28px;}
 .filters select:focus,.filters input:focus{border-color:var(--accent);}
 .filters input{width:180px;}
 
+.paginacion{display:flex;align-items:center;justify-content:space-between;padding:12px 0 0;flex-wrap:wrap;gap:8px;}
+.pag-info{font-size:.76rem;color:var(--muted);}
+.pag-btns{display:flex;gap:4px;flex-wrap:wrap;}
+.pag-btn{background:transparent;border:1px solid var(--border);border-radius:6px;color:var(--muted);font-size:.76rem;padding:4px 9px;cursor:pointer;transition:all .15s;}
+.pag-btn:hover:not([disabled]){border-color:var(--accent);color:var(--text);}
+.pag-btn.active{background:var(--accent);color:#fff;border-color:var(--accent);}
+.pag-btn[disabled]{opacity:.35;cursor:default;}
+
 table{width:100%;border-collapse:collapse;font-size:.83rem;}
 th{text-align:left;padding:9px 12px;color:var(--muted);font-size:.72rem;text-transform:uppercase;letter-spacing:.5px;border-bottom:1px solid var(--border);white-space:nowrap;cursor:pointer;user-select:none;}
 th:hover{color:var(--text);}
@@ -255,6 +263,10 @@ tr:hover td{background:rgba(255,255,255,.02);}
       </thead>
       <tbody id="tbody-inv"></tbody>
     </table>
+    <div class="paginacion">
+      <span class="pag-info" id="pag-info"></span>
+      <div class="pag-btns" id="pag-btns"></div>
+    </div>
   </div>
 </div>
 
@@ -468,11 +480,24 @@ function estado(inv,min){
   return {key:'danger',pill:'<span class="pill p-danger">Sin stock</span>'};
 }
 
-function renderInv(data){
-  document.getElementById('fil-cnt').textContent=data.length+' prods.';
-  document.getElementById('tbody-inv').innerHTML=data.map(p=>{
-    const e=estado(p.inv,p.min);
-    const dif=p.inv-p.min;
+const PAGE_SIZE = 10;
+let currentPage = 1;
+let filteredData = [...prods];
+
+function renderInv(data, page) {
+  page = page || 1;
+  filteredData = data;
+  currentPage = page;
+  const total = data.length;
+  const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE));
+  if (page > totalPages) page = totalPages;
+  const start = (page - 1) * PAGE_SIZE;
+  const slice = data.slice(start, start + PAGE_SIZE);
+
+  document.getElementById('fil-cnt').textContent = total + ' prods.';
+  document.getElementById('tbody-inv').innerHTML = slice.map(p => {
+    const e = estado(p.inv, p.min);
+    const dif = p.inv - p.min;
     return `<tr>
       <td style="color:var(--muted);font-size:.76rem;">${p.cod}</td>
       <td style="color:var(--muted);">${p.cat}</td>
@@ -483,7 +508,28 @@ function renderInv(data){
       <td>${e.pill}</td>
     </tr>`;
   }).join('');
+
+  document.getElementById('pag-info').textContent =
+    `${start+1}–${Math.min(start+PAGE_SIZE, total)} de ${total} productos`;
+
+  const btns = document.getElementById('pag-btns');
+  let html = '';
+  html += `<button class="pag-btn" onclick="goPage(${page-1})" ${page<=1?'disabled':''}>‹ Ant</button>`;
+  const range = [];
+  for (let i = 1; i <= totalPages; i++) {
+    if (i===1||i===totalPages||Math.abs(i-page)<=1) range.push(i);
+    else if (range[range.length-1] !== '…') range.push('…');
+  }
+  range.forEach(r => {
+    if (r==='…') html += `<span class="pag-btn" style="cursor:default;">…</span>`;
+    else html += `<button class="pag-btn ${r===page?'active':''}" onclick="goPage(${r})">${r}</button>`;
+  });
+  html += `<button class="pag-btn" onclick="goPage(${page+1})" ${page>=totalPages?'disabled':''}>Sig ›</button>`;
+  btns.innerHTML = html;
 }
+
+function goPage(p) { renderInv(filteredData, p); }
+
 renderInv(prods);
 
 function filtrar(){
@@ -495,7 +541,7 @@ function filtrar(){
     if(est&&estado(p.inv,p.min).key!==est) return false;
     if(q&&!p.desc.toLowerCase().includes(q)) return false;
     return true;
-  }));
+  }), 1);
 }
 
 const movs=[
