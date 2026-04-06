@@ -272,10 +272,6 @@ tr:hover td{background:rgba(255,255,255,.02);}
       <h3>Registro de movimientos</h3>
       <div id="lista-mv"></div>
     </div>
-    <div class="chart-card">
-      <h3>Balance neto por producto</h3>
-      <div class="chart-wrap h260"><canvas id="c3"></canvas></div>
-    </div>
   </div>
 
   <div class="grid2">
@@ -414,19 +410,6 @@ new Chart(document.getElementById('c2'),{
     scales:{x:{ticks:{color:tc},grid:{color:gc}},y:{ticks:{color:tc,font:{size:11}},grid:{display:false}}}}
 });
 
-new Chart(document.getElementById('c3'),{
-  type:'bar',indexAxis:'y',
-  data:{
-    labels:['Salchichas','Jamonada','Pollo','Picadillo','Jamón','C.Res','Chorizo','Hígado','Pechuga','Huevos'],
-    datasets:[{
-      data:[95,55,53,45,30,18,10,-6,-2,-20],
-      backgroundColor:d=>d.raw>=0?'rgba(0,212,170,.75)':'rgba(255,107,107,.75)',
-      borderRadius:3
-    }]
-  },
-  options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},
-    scales:{x:{ticks:{color:tc},grid:{color:gc}},y:{ticks:{color:tc,font:{size:10}},grid:{display:false}}}}
-});
 
 const prods=[
   {cod:'1000001',cat:'Proteínas',desc:'Pollo',min:100,inv:53},
