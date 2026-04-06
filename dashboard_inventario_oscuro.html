@@ -644,7 +644,8 @@ function buildMovs(csv){
     const num=parseInt(r[0]);
     if(!isNaN(num)&&num>0&&r[1]&&r[2]){
       const isE=r[2]==="ENTRADA";
-      data.push({f:r[1],prod:r[4]||"",tipo:r[2],cant:parseFloat(isE?r[7]:r[8])||0});
+      const fISO = parseFecha(r[1]) || r[1]; // normalizar a ISO, fallback al original
+      data.push({f:fISO, fDisplay:r[1], prod:r[4]||"",tipo:r[2],cant:parseFloat(isE?r[7]:r[8])||0});
     }
   }
   return data;
@@ -697,10 +698,39 @@ function isoHace(dias){ const d=new Date(); d.setDate(d.getDate()-dias); return 
 
 function parseFecha(str){
   if(!str) return null;
+  str = str.trim();
+
+  // ISO: 2026-01-11
   if(/^\d{4}-\d{2}-\d{2}$/.test(str)) return str;
-  const meses={ene:'01',feb:'02',mar:'03',abr:'04',may:'05',jun:'06',jul:'07',ago:'08',sep:'09',oct:'10',nov:'11',dic:'12'};
-  const m=str.trim().match(/^(\d{1,2})\s+(\w{3})$/i);
-  if(m) return `${new Date().getFullYear()}-${meses[m[2].toLowerCase()]||'01'}-${m[1].padStart(2,'0')}`;
+
+  // DD/MM/YYYY o D/M/YYYY (formato Google Sheets español)
+  let m = str.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/);
+  if(m) return `${m[3]}-${m[2].padStart(2,'0')}-${m[1].padStart(2,'0')}`;
+
+  // YYYY/MM/DD
+  m = str.match(/^(\d{4})\/(\d{2})\/(\d{2})$/);
+  if(m) return `${m[1]}-${m[2]}-${m[3]}`;
+
+  // DD-MM-YYYY
+  m = str.match(/^(\d{1,2})-(\d{1,2})-(\d{4})$/);
+  if(m) return `${m[3]}-${m[2].padStart(2,'0')}-${m[1].padStart(2,'0')}`;
+
+  // "11 ene" o "11 enero" (datos estáticos)
+  const meses={ene:'01',enero:'01',feb:'02',febrero:'02',mar:'03',marzo:'03',
+    abr:'04',abril:'04',may:'05',mayo:'05',jun:'06',junio:'06',
+    jul:'07',julio:'07',ago:'08',agosto:'08',sep:'09',septiembre:'09',
+    oct:'10',octubre:'10',nov:'11',noviembre:'11',dic:'12',diciembre:'12'};
+  m = str.match(/^(\d{1,2})\s+(\w+)$/i);
+  if(m && meses[m[2].toLowerCase()])
+    return `${new Date().getFullYear()}-${meses[m[2].toLowerCase()]}-${m[1].padStart(2,'0')}`;
+
+  // Número serial Excel/Sheets (ej: 46042)
+  const serial = parseInt(str);
+  if(!isNaN(serial) && serial > 40000 && serial < 60000){
+    const d = new Date((serial - 25569) * 86400000);
+    return d.toISOString().slice(0,10);
+  }
+
   return null;
 }
 
@@ -725,7 +755,7 @@ function aplicarFiltro(filtro, fechaCustom){
   document.getElementById('lista-mv').innerHTML = filtered.length
     ? filtered.slice(0,30).map(m=>`
         <div class="mv-row">
-          <div class="mv-fecha">${m.f}</div>
+          <div class="mv-fecha">${m.fDisplay||m.f}</div>
           <div class="mv-prod">${m.prod}</div>
           <span class="pill ${m.tipo==='ENTRADA'?'p-ok':'p-danger'}">${m.tipo}</span>
           <div class="mv-cant ${m.tipo==='ENTRADA'?'num-ok':'num-danger'}">${m.tipo==='ENTRADA'?'+':'−'}${m.cant}</div>
