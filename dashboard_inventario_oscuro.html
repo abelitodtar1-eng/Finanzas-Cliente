@@ -272,6 +272,14 @@ tr:hover td{background:rgba(255,255,255,.02);}
       <h3>Registro de movimientos</h3>
       <div id="lista-mv"></div>
     </div>
+    <div class="chart-card">
+      <h3>Movimientos por producto</h3>
+      <div class="legend">
+        <span><span class="lsq" style="background:rgba(0,212,170,.8);"></span>Entradas</span>
+        <span><span class="lsq" style="background:rgba(255,107,107,.8);"></span>Salidas</span>
+      </div>
+      <div class="chart-wrap h260"><canvas id="c-movprod"></canvas></div>
+    </div>
   </div>
 
   <div class="grid2">
@@ -517,6 +525,35 @@ const movs=[
   {f:'11 ene',prod:'Jamonada',tipo:'ENTRADA',cant:60},
   {f:'11 ene',prod:'Jamonada',tipo:'SALIDA',cant:5},
 ];
+let chartMovProd=null;
+function renderChartMovProd(data){
+  const resumen={};
+  for(const m of data){
+    if(!resumen[m.prod]) resumen[m.prod]={e:0,s:0};
+    if(m.tipo==='ENTRADA') resumen[m.prod].e+=m.cant;
+    else resumen[m.prod].s+=m.cant;
+  }
+  const prods=Object.keys(resumen);
+  const entradas=prods.map(p=>resumen[p].e);
+  const salidas=prods.map(p=>resumen[p].s);
+  if(chartMovProd) chartMovProd.destroy();
+  chartMovProd=new Chart(document.getElementById('c-movprod'),{
+    type:'bar',
+    data:{
+      labels:prods,
+      datasets:[
+        {label:'Entradas',data:entradas,backgroundColor:'rgba(0,212,170,.75)',borderRadius:4},
+        {label:'Salidas',data:salidas,backgroundColor:'rgba(255,107,107,.75)',borderRadius:4}
+      ]
+    },
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},
+      scales:{
+        x:{ticks:{color:tc,font:{size:10}},grid:{color:gc}},
+        y:{ticks:{color:tc},grid:{color:gc}}
+      }}
+  });
+}
+
 function renderRanking(data){
   const resumen={};
   for(const m of data){
@@ -542,6 +579,7 @@ function renderRanking(data){
     [...lista].reverse().slice(0,5).map((r,i)=>rowHTML(r,i)).join('');
 }
 
+renderChartMovProd(movs);
 renderRanking(movs);
 
 document.getElementById('lista-mv').innerHTML=movs.map(m=>`
@@ -628,6 +666,7 @@ async function initLive(){
           <div class="mv-cant ${m.tipo==='ENTRADA'?'num-ok':'num-danger'}">${m.tipo==='ENTRADA'?'+':'−'}${m.cant}</div>
         </div>`).join('');
       refreshKPIs(lp,lm);
+      renderChartMovProd(lm);
       renderRanking(lm);
     }
   }catch(e){
