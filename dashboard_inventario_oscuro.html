@@ -1,0 +1,611 @@
+
+<style>
+:root{--bg:#0f1117;--card:#1a1d27;--border:#2a2d3e;--accent:#6c63ff;--accent2:#00d4aa;--accent3:#ff6b6b;--accent4:#ffd166;--text:#e2e8f0;--muted:#8892a4;--radius:12px;}
+*{box-sizing:border-box;margin:0;padding:0;}
+.db{background:var(--bg);color:var(--text);font-family:'Segoe UI',system-ui,sans-serif;min-height:600px;border-radius:var(--radius);overflow:hidden;}
+
+header{display:flex;align-items:center;justify-content:space-between;padding:18px 28px;border-bottom:1px solid var(--border);background:var(--card);}
+header h1{font-size:1.2rem;font-weight:700;color:var(--text);}
+header h1 span{color:var(--accent);}
+.hbadge{background:var(--accent);color:#fff;font-size:.7rem;font-weight:700;padding:3px 10px;border-radius:20px;letter-spacing:.5px;}
+.hright{display:flex;align-items:center;gap:12px;}
+.fecha-txt{color:var(--muted);font-size:.82rem;}
+
+.tabs{display:flex;gap:4px;padding:16px 28px 0;background:var(--card);border-bottom:1px solid var(--border);}
+.tab{padding:8px 20px;border-radius:8px 8px 0 0;cursor:pointer;font-size:.88rem;font-weight:600;color:var(--muted);background:transparent;border:none;border-bottom:2px solid transparent;transition:all .2s;}
+.tab.active{color:var(--accent);border-bottom-color:var(--accent);background:rgba(108,99,255,.08);}
+.tab:hover:not(.active){color:var(--text);}
+
+main{padding:22px 28px;}
+.view{display:none;}
+.view.active{display:block;}
+
+.kpi-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px;margin-bottom:22px;}
+.kpi{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:18px 20px;position:relative;overflow:hidden;}
+.kpi::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:var(--kpi-color,var(--accent));}
+.kpi-lbl{font-size:.72rem;color:var(--muted);text-transform:uppercase;letter-spacing:.6px;margin-bottom:8px;}
+.kpi-val{font-size:1.8rem;font-weight:700;color:var(--text);}
+.kpi-sub{font-size:.76rem;color:var(--muted);margin-top:4px;}
+.kpi-icon{position:absolute;right:14px;top:14px;font-size:1.5rem;opacity:.12;}
+
+.grid2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;margin-bottom:22px;}
+.chart-card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:18px 20px;}
+.chart-card h3{font-size:.78rem;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:14px;}
+.chart-wrap{position:relative;}
+.h200{height:200px;}
+.h260{height:260px;}
+.h320{height:320px;}
+
+.tbl-card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:18px 20px;margin-bottom:22px;}
+.tbl-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;flex-wrap:wrap;gap:10px;}
+.tbl-header h3{font-size:.78rem;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;}
+.filters{display:flex;gap:8px;flex-wrap:wrap;}
+.filters select,.filters input{background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:6px 10px;color:var(--text);font-size:.82rem;outline:none;}
+.filters select:focus,.filters input:focus{border-color:var(--accent);}
+.filters input{width:180px;}
+
+table{width:100%;border-collapse:collapse;font-size:.83rem;}
+th{text-align:left;padding:9px 12px;color:var(--muted);font-size:.72rem;text-transform:uppercase;letter-spacing:.5px;border-bottom:1px solid var(--border);white-space:nowrap;cursor:pointer;user-select:none;}
+th:hover{color:var(--text);}
+td{padding:9px 12px;border-bottom:1px solid var(--border);color:var(--text);vertical-align:middle;}
+tr:last-child td{border-bottom:none;}
+tr:hover td{background:rgba(255,255,255,.02);}
+.num{text-align:right;}
+
+.pill{display:inline-block;padding:2px 10px;border-radius:20px;font-size:.72rem;font-weight:700;}
+.p-ok{background:rgba(0,212,170,.15);color:var(--accent2);}
+.p-warn{background:rgba(255,209,102,.15);color:var(--accent4);}
+.p-danger{background:rgba(255,107,107,.15);color:var(--accent3);}
+.p-blue{background:rgba(108,99,255,.15);color:var(--accent);}
+
+.num-ok{color:var(--accent2);font-weight:600;}
+.num-warn{color:var(--accent4);font-weight:600;}
+.num-danger{color:var(--accent3);font-weight:600;}
+
+.bar-mini{display:flex;align-items:center;gap:6px;}
+.bar-track{flex:1;height:6px;background:var(--border);border-radius:3px;overflow:hidden;}
+.bar-fill{height:100%;border-radius:3px;}
+
+.alert-block{border-radius:10px;padding:14px 16px;margin-bottom:12px;}
+.al-r{background:rgba(255,107,107,.08);border:1px solid rgba(255,107,107,.2);}
+.al-a{background:rgba(255,209,102,.08);border:1px solid rgba(255,209,102,.2);}
+.al-g{background:rgba(0,212,170,.08);border:1px solid rgba(0,212,170,.2);}
+.al-b{background:rgba(108,99,255,.08);border:1px solid rgba(108,99,255,.2);}
+.al-title{font-size:.82rem;font-weight:700;margin-bottom:8px;}
+.al-r .al-title{color:var(--accent3);}
+.al-a .al-title{color:var(--accent4);}
+.al-g .al-title{color:var(--accent2);}
+.al-b .al-title{color:var(--accent);}
+.al-item{font-size:.82rem;color:var(--muted);display:flex;gap:6px;margin-bottom:4px;line-height:1.5;}
+.dot-r{color:var(--accent3);}
+.dot-a{color:var(--accent4);}
+.dot-g{color:var(--accent2);}
+.dot-b{color:var(--accent);}
+
+.role-tag{display:inline-block;font-size:.72rem;font-weight:700;padding:3px 12px;border-radius:20px;margin-bottom:12px;letter-spacing:.4px;}
+.rt-owner{background:rgba(108,99,255,.15);color:var(--accent);}
+.rt-seller{background:rgba(0,212,170,.15);color:var(--accent2);}
+
+.prog-row{display:flex;align-items:center;gap:10px;padding:7px 0;border-bottom:1px solid var(--border);font-size:.82rem;}
+.prog-row:last-child{border-bottom:none;}
+.prog-name{flex:1;color:var(--text);}
+.prog-track{width:100px;height:6px;background:var(--border);border-radius:3px;overflow:hidden;}
+.prog-fill{height:100%;border-radius:3px;}
+.prog-val{min-width:50px;text-align:right;font-size:.8rem;font-weight:700;}
+
+.cat-row{display:flex;align-items:center;gap:8px;padding:6px 0;font-size:.82rem;}
+.cat-lbl{min-width:130px;color:var(--muted);}
+.cat-track{flex:1;height:8px;background:var(--border);border-radius:4px;overflow:hidden;}
+.cat-fill{height:100%;border-radius:4px;}
+.cat-val{min-width:32px;text-align:right;font-weight:700;}
+
+.mv-row{display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--border);font-size:.82rem;}
+.mv-row:last-child{border-bottom:none;}
+.mv-fecha{min-width:70px;color:var(--muted);font-size:.76rem;}
+.mv-prod{flex:1;color:var(--text);font-weight:500;}
+.mv-cant{min-width:50px;text-align:right;font-weight:700;}
+
+.sect-sep{font-size:.7rem;color:var(--muted);text-transform:uppercase;letter-spacing:.07em;margin:20px 0 12px;border-bottom:1px solid var(--border);padding-bottom:6px;}
+
+.legend{display:flex;flex-wrap:wrap;gap:12px;margin-bottom:10px;font-size:.78rem;color:var(--muted);}
+.legend span{display:flex;align-items:center;gap:5px;}
+.lsq{width:9px;height:9px;border-radius:2px;}
+
+.footer-kpi{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-top:20px;}
+.fkpi{background:rgba(108,99,255,.06);border:1px solid rgba(108,99,255,.15);border-radius:10px;padding:12px 14px;text-align:center;}
+.fkpi-lbl{font-size:.7rem;color:var(--muted);margin-bottom:4px;text-transform:uppercase;letter-spacing:.4px;}
+.fkpi-val{font-size:1.2rem;font-weight:700;}
+</style>
+
+<div class="db">
+
+<header>
+  <h1><span>Invent</span>Bot — Panel de control</h1>
+  <div class="hright">
+    <span class="fecha-txt">Enero 2026 · Almacén General</span>
+    <span class="hbadge">48 PRODUCTOS</span>
+  </div>
+</header>
+
+<div class="tabs">
+  <button class="tab active" onclick="showTab('resumen',this)">Resumen</button>
+  <button class="tab" onclick="showTab('inventario',this)">Inventario</button>
+  <button class="tab" onclick="showTab('movimientos',this)">Movimientos</button>
+  <button class="tab" onclick="showTab('decisiones',this)">Decisiones</button>
+</div>
+
+<main>
+
+<!-- ══ RESUMEN ══ -->
+<div class="view active" id="view-resumen">
+  <div class="kpi-grid">
+    <div class="kpi" style="--kpi-color:#ff6b6b">
+      <div class="kpi-icon">🚨</div>
+      <div class="kpi-lbl">Sin stock</div>
+      <div class="kpi-val" style="color:var(--accent3)">41</div>
+      <div class="kpi-sub">85% del catálogo vacío</div>
+    </div>
+    <div class="kpi" style="--kpi-color:#ffd166">
+      <div class="kpi-icon">⚠</div>
+      <div class="kpi-lbl">Solicitar ya</div>
+      <div class="kpi-val" style="color:var(--accent4)">3</div>
+      <div class="kpi-sub">Bajo mínimo requerido</div>
+    </div>
+    <div class="kpi" style="--kpi-color:#00d4aa">
+      <div class="kpi-icon">✔</div>
+      <div class="kpi-lbl">Nivel correcto</div>
+      <div class="kpi-val" style="color:var(--accent2)">4</div>
+      <div class="kpi-sub">Productos en buen estado</div>
+    </div>
+    <div class="kpi" style="--kpi-color:#6c63ff">
+      <div class="kpi-icon">📋</div>
+      <div class="kpi-lbl">Movimientos enero</div>
+      <div class="kpi-val">17</div>
+      <div class="kpi-sub">395 entradas · 117 salidas</div>
+    </div>
+  </div>
+
+  <div class="grid2">
+    <div class="chart-card">
+      <h3>Estado por categoría</h3>
+      <div class="cat-row"><div class="cat-lbl">Proteínas</div><div class="cat-track"><div class="cat-fill" style="width:70%;background:var(--accent2);"></div></div><div class="cat-val num-ok">7/10</div></div>
+      <div class="cat-row"><div class="cat-lbl">Bebidas</div><div class="cat-track"><div class="cat-fill" style="width:0%;"></div></div><div class="cat-val num-danger">0/6</div></div>
+      <div class="cat-row"><div class="cat-lbl">Beb. alcohólicas</div><div class="cat-track"><div class="cat-fill" style="width:0%;"></div></div><div class="cat-val num-danger">0/6</div></div>
+      <div class="cat-row"><div class="cat-lbl">Granos</div><div class="cat-track"><div class="cat-fill" style="width:0%;"></div></div><div class="cat-val num-danger">0/6</div></div>
+      <div class="cat-row"><div class="cat-lbl">Prod. procesados</div><div class="cat-track"><div class="cat-fill" style="width:0%;"></div></div><div class="cat-val num-danger">0/12</div></div>
+      <div class="cat-row"><div class="cat-lbl">Cereales y pastas</div><div class="cat-track"><div class="cat-fill" style="width:0%;"></div></div><div class="cat-val num-danger">0/6</div></div>
+      <div class="cat-row"><div class="cat-lbl">Higiene</div><div class="cat-track"><div class="cat-fill" style="width:0%;"></div></div><div class="cat-val num-danger">0/2</div></div>
+    </div>
+
+    <div class="chart-card">
+      <h3>Nivel de stock — productos activos</h3>
+      <div class="prog-row"><div class="prog-name">Salchichas</div><div class="prog-track"><div class="prog-fill" style="width:100%;background:var(--accent2);"></div></div><div class="prog-val num-ok">95</div></div>
+      <div class="prog-row"><div class="prog-name">Jamonada</div><div class="prog-track"><div class="prog-fill" style="width:58%;background:var(--accent2);"></div></div><div class="prog-val num-ok">55</div></div>
+      <div class="prog-row"><div class="prog-name">Pollo</div><div class="prog-track"><div class="prog-fill" style="width:53%;background:var(--accent4);"></div></div><div class="prog-val num-warn">53</div></div>
+      <div class="prog-row"><div class="prog-name">Picadillo</div><div class="prog-track"><div class="prog-fill" style="width:47%;background:var(--accent4);"></div></div><div class="prog-val num-warn">45</div></div>
+      <div class="prog-row"><div class="prog-name">Jamón</div><div class="prog-track"><div class="prog-fill" style="width:32%;background:var(--accent2);"></div></div><div class="prog-val num-ok">30</div></div>
+      <div class="prog-row"><div class="prog-name">Carne de Res</div><div class="prog-track"><div class="prog-fill" style="width:19%;background:var(--accent2);"></div></div><div class="prog-val num-ok">18</div></div>
+      <div class="prog-row"><div class="prog-name">Chorizo</div><div class="prog-track"><div class="prog-fill" style="width:11%;background:var(--accent4);"></div></div><div class="prog-val num-warn">10</div></div>
+      <div class="prog-row"><div class="prog-name">Hígado</div><div class="prog-track"><div class="prog-fill" style="width:0%;"></div></div><div class="prog-val num-danger">-6</div></div>
+      <div class="prog-row"><div class="prog-name">Pechuga</div><div class="prog-track"><div class="prog-fill" style="width:0%;"></div></div><div class="prog-val num-danger">-2</div></div>
+      <div class="prog-row"><div class="prog-name">Huevos</div><div class="prog-track"><div class="prog-fill" style="width:0%;"></div></div><div class="prog-val num-danger">-20</div></div>
+    </div>
+  </div>
+
+  <div class="grid2">
+    <div class="chart-card">
+      <h3>Entradas vs. salidas por producto</h3>
+      <div class="legend">
+        <span><span class="lsq" style="background:rgba(108,99,255,.8);"></span>Entradas</span>
+        <span><span class="lsq" style="background:rgba(255,107,107,.8);"></span>Salidas</span>
+      </div>
+      <div class="chart-wrap h200"><canvas id="c1"></canvas></div>
+    </div>
+    <div class="chart-card">
+      <h3>Top 5 productos — mayor salida</h3>
+      <div class="chart-wrap h200"><canvas id="c2"></canvas></div>
+    </div>
+  </div>
+
+  <div class="alert-block al-r">
+    <div class="al-title">Alertas críticas — actuar hoy</div>
+    <div class="al-item"><span class="dot-r">●</span> Huevos con inventario −20: salida registrada sin entrada previa.</div>
+    <div class="al-item"><span class="dot-r">●</span> 5 categorías completamente vacías: Bebidas, Granos, Procesados, Cereales e Higiene.</div>
+    <div class="al-item"><span class="dot-a">●</span> Pollo (53) y Picadillo (45) por debajo del stock mínimo requerido.</div>
+  </div>
+</div>
+
+<!-- ══ INVENTARIO ══ -->
+<div class="view" id="view-inventario">
+  <div class="tbl-card">
+    <div class="tbl-header">
+      <h3>Inventario completo — 48 productos</h3>
+      <div class="filters">
+        <select id="fil-cat" onchange="filtrar()">
+          <option value="">Todas las categorías</option>
+          <option value="Proteínas">Proteínas</option>
+          <option value="Bebidas">Bebidas</option>
+          <option value="Bebidas alcohólicas">Beb. alcohólicas</option>
+          <option value="Granos">Granos</option>
+          <option value="Productos procesados">Prod. procesados</option>
+          <option value="Cereales y Pastas">Cereales y Pastas</option>
+          <option value="Higiene">Higiene</option>
+        </select>
+        <select id="fil-est" onchange="filtrar()">
+          <option value="">Todos los estados</option>
+          <option value="ok">Solo OK</option>
+          <option value="warn">Solo solicitar</option>
+          <option value="danger">Solo sin stock</option>
+        </select>
+        <input type="text" id="fil-q" placeholder="Buscar producto..." oninput="filtrar()">
+        <span id="fil-cnt" style="font-size:.78rem;color:var(--muted);align-self:center;">48</span>
+      </div>
+    </div>
+    <table>
+      <thead>
+        <tr>
+          <th>Código</th>
+          <th>Categoría</th>
+          <th>Producto</th>
+          <th class="num">Mínimo</th>
+          <th class="num">Inventario</th>
+          <th class="num">Diferencia</th>
+          <th>Estado</th>
+        </tr>
+      </thead>
+      <tbody id="tbody-inv"></tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ══ MOVIMIENTOS ══ -->
+<div class="view" id="view-movimientos">
+  <div class="kpi-grid">
+    <div class="kpi" style="--kpi-color:#6c63ff"><div class="kpi-lbl">Total movimientos</div><div class="kpi-val">17</div><div class="kpi-sub">01 – 11 enero</div></div>
+    <div class="kpi" style="--kpi-color:#00d4aa"><div class="kpi-lbl">Total entradas</div><div class="kpi-val" style="color:var(--accent2)">395</div><div class="kpi-sub">unidades recibidas</div></div>
+    <div class="kpi" style="--kpi-color:#ff6b6b"><div class="kpi-lbl">Total salidas</div><div class="kpi-val" style="color:var(--accent3)">117</div><div class="kpi-sub">unidades despachadas</div></div>
+    <div class="kpi" style="--kpi-color:#ffd166"><div class="kpi-lbl">Balance neto</div><div class="kpi-val" style="color:var(--accent2)">+278</div><div class="kpi-sub">unidades retenidas</div></div>
+  </div>
+
+  <div class="grid2">
+    <div class="chart-card">
+      <h3>Registro de movimientos</h3>
+      <div id="lista-mv"></div>
+    </div>
+    <div class="chart-card">
+      <h3>Balance neto por producto</h3>
+      <div class="chart-wrap h260"><canvas id="c3"></canvas></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ DECISIONES ══ -->
+<div class="view" id="view-decisiones">
+  <div class="grid2">
+    <div class="chart-card">
+      <div class="role-tag rt-owner">ROL 1 — DUEÑO DE EMPRESA</div>
+      <h3 style="margin-bottom:14px;">Plan de compras urgente</h3>
+
+      <div class="alert-block al-r">
+        <div class="al-title">Prioridad 1 — Comprar HOY</div>
+        <div class="al-item"><span class="dot-r">●</span> Huevos: pedir 50+ und. (inventario −20, negativo)</div>
+        <div class="al-item"><span class="dot-r">●</span> Hígado: pedir 26+ und. (inventario −6, negativo)</div>
+        <div class="al-item"><span class="dot-r">●</span> Pechuga de pollo: pedir 7+ und. (negativo −2)</div>
+        <div class="al-item"><span class="dot-r">●</span> Pollo: pedir 47+ und. (mayor rotación del almacén)</div>
+      </div>
+      <div class="alert-block al-a">
+        <div class="al-title">Prioridad 2 — Esta semana</div>
+        <div class="al-item"><span class="dot-a">●</span> Picadillo: pedir 15+ und. para alcanzar el mínimo</div>
+        <div class="al-item"><span class="dot-a">●</span> Chorizo: pedir 5+ und. — 50% consumido en 11 días</div>
+      </div>
+      <div class="alert-block al-r">
+        <div class="al-title">Prioridad 3 — Reabastecimiento total</div>
+        <div class="al-item"><span class="dot-r">●</span> Bebidas (6 prod.): necesita 312 unidades</div>
+        <div class="al-item"><span class="dot-r">●</span> Prod. procesados (12 prod.): necesita 320 unidades</div>
+        <div class="al-item"><span class="dot-r">●</span> Cereales y Pastas (6 prod.): necesita 150 unidades</div>
+        <div class="al-item"><span class="dot-r">●</span> Granos (6 prod.): necesita 102 unidades</div>
+        <div class="al-item"><span class="dot-r">●</span> Beb. alcohólicas (6 prod.): necesita 125 unidades</div>
+        <div class="al-item"><span class="dot-r">●</span> Higiene (2 prod.): necesita 50 unidades</div>
+      </div>
+    </div>
+
+    <div class="chart-card">
+      <div class="role-tag rt-seller">ROL 2 — SUPER VENDEDOR</div>
+      <h3 style="margin-bottom:14px;">Oportunidades de negocio</h3>
+
+      <div class="alert-block al-r">
+        <div class="al-title">Oportunidad máxima</div>
+        <div class="al-item"><span class="dot-r">●</span> Surtir 5 categorías vacías: más de 1.009 unidades que el almacén necesita hoy.</div>
+        <div class="al-item"><span class="dot-r">●</span> Quien llegue hoy con bebidas, granos o pastas tiene la venta asegurada.</div>
+      </div>
+      <div class="alert-block al-a">
+        <div class="al-title">Oportunidad alta</div>
+        <div class="al-item"><span class="dot-a">●</span> Contrato de suministro mensual fijo: Pollo al 47% en 11 días. El dueño necesita reposición garantizada.</div>
+        <div class="al-item"><span class="dot-a">●</span> Bundle Pollo + Arroz + Aceite: los 3 en cero o bajo mínimo. Mayor ticket por pedido.</div>
+      </div>
+      <div class="alert-block al-g">
+        <div class="al-title">Oportunidad media</div>
+        <div class="al-item"><span class="dot-g">●</span> Higiene como venta cruzada: Jabón y Detergente fáciles de agregar a cualquier pedido.</div>
+        <div class="al-item"><span class="dot-g">●</span> Asesoría de control: 3 inventarios negativos indican errores. Ofrecer capacitación fideliza.</div>
+      </div>
+      <div class="alert-block al-b">
+        <div class="al-title">Argumento de cierre</div>
+        <div class="al-item"><span class="dot-b">●</span> "Tiene 41 de 48 productos sin stock. Cada día que pasa es dinero que no entra. Yo le surtido hoy y le aseguro reposición mensual."</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="sect-sep">Tabla de compras recomendadas</div>
+  <div class="tbl-card" style="margin-bottom:0;">
+    <table>
+      <thead>
+        <tr><th>Prioridad</th><th>Producto / Categoría</th><th class="num">Stock actual</th><th class="num">Mínimo</th><th class="num">Pedir al menos</th><th>Motivo</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><span class="pill p-danger">1 — HOY</span></td><td>Huevos</td><td class="num num-danger">−20</td><td class="num">30</td><td class="num" style="font-weight:700;">50+</td><td style="color:var(--muted);">Inventario negativo</td></tr>
+        <tr><td><span class="pill p-danger">1 — HOY</span></td><td>Hígado</td><td class="num num-danger">−6</td><td class="num">20</td><td class="num" style="font-weight:700;">26+</td><td style="color:var(--muted);">Inventario negativo</td></tr>
+        <tr><td><span class="pill p-danger">1 — HOY</span></td><td>Pechuga de pollo</td><td class="num num-danger">−2</td><td class="num">5</td><td class="num" style="font-weight:700;">7+</td><td style="color:var(--muted);">Inventario negativo</td></tr>
+        <tr><td><span class="pill p-danger">1 — HOY</span></td><td>Pollo</td><td class="num num-warn">53</td><td class="num">100</td><td class="num" style="font-weight:700;">47+</td><td style="color:var(--muted);">Mayor rotación (47%)</td></tr>
+        <tr><td><span class="pill p-warn">2 — SEMANA</span></td><td>Picadillo</td><td class="num num-warn">45</td><td class="num">60</td><td class="num" style="font-weight:700;">15+</td><td style="color:var(--muted);">Bajo mínimo</td></tr>
+        <tr><td><span class="pill p-warn">2 — SEMANA</span></td><td>Chorizo</td><td class="num num-warn">10</td><td class="num">15</td><td class="num" style="font-weight:700;">5+</td><td style="color:var(--muted);">50% consumido en 11 días</td></tr>
+        <tr><td><span class="pill p-danger">3 — URGENTE</span></td><td>Bebidas (6 productos)</td><td class="num num-danger">0</td><td class="num">312</td><td class="num" style="font-weight:700;">312+</td><td style="color:var(--muted);">Categoría vacía</td></tr>
+        <tr><td><span class="pill p-danger">3 — URGENTE</span></td><td>Prod. procesados (12)</td><td class="num num-danger">0</td><td class="num">320</td><td class="num" style="font-weight:700;">320+</td><td style="color:var(--muted);">Categoría vacía</td></tr>
+        <tr><td><span class="pill p-danger">3 — URGENTE</span></td><td>Cereales y Pastas (6)</td><td class="num num-danger">0</td><td class="num">150</td><td class="num" style="font-weight:700;">150+</td><td style="color:var(--muted);">Categoría vacía</td></tr>
+        <tr><td><span class="pill p-danger">3 — URGENTE</span></td><td>Granos (6 productos)</td><td class="num num-danger">0</td><td class="num">102</td><td class="num" style="font-weight:700;">102+</td><td style="color:var(--muted);">Categoría vacía</td></tr>
+        <tr><td><span class="pill p-danger">3 — URGENTE</span></td><td>Beb. alcohólicas (6)</td><td class="num num-danger">0</td><td class="num">125</td><td class="num" style="font-weight:700;">125+</td><td style="color:var(--muted);">Categoría vacía</td></tr>
+        <tr><td><span class="pill p-danger">3 — URGENTE</span></td><td>Higiene (2 productos)</td><td class="num num-danger">0</td><td class="num">50</td><td class="num" style="font-weight:700;">50+</td><td style="color:var(--muted);">Categoría vacía</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+</main>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<script>
+function showTab(id,btn){
+  document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(b=>b.classList.remove('active'));
+  document.getElementById('view-'+id).classList.add('active');
+  btn.classList.add('active');
+}
+
+const gc='rgba(255,255,255,.05)';
+const tc='#8892a4';
+
+new Chart(document.getElementById('c1'),{
+  type:'bar',
+  data:{
+    labels:['Pollo','Picadillo','Salchichas','C.Res','Jamón','Chorizo','Jamonada'],
+    datasets:[
+      {label:'Entradas',data:[100,60,100,20,35,20,60],backgroundColor:'rgba(108,99,255,.75)',borderRadius:4},
+      {label:'Salidas',data:[47,15,5,2,5,10,5],backgroundColor:'rgba(255,107,107,.75)',borderRadius:4}
+    ]
+  },
+  options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},
+    scales:{x:{ticks:{color:tc,font:{size:10}},grid:{color:gc}},y:{ticks:{color:tc},grid:{color:gc}}}}
+});
+
+new Chart(document.getElementById('c2'),{
+  type:'bar',indexAxis:'y',
+  data:{
+    labels:['Pollo','Huevos','Picadillo','Chorizo','Jamón'],
+    datasets:[{data:[47,20,15,10,5],backgroundColor:['rgba(255,107,107,.8)','rgba(255,209,102,.8)','rgba(255,107,107,.7)','rgba(255,209,102,.7)','rgba(108,99,255,.7)'],borderRadius:4}]
+  },
+  options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},
+    scales:{x:{ticks:{color:tc},grid:{color:gc}},y:{ticks:{color:tc,font:{size:11}},grid:{display:false}}}}
+});
+
+new Chart(document.getElementById('c3'),{
+  type:'bar',indexAxis:'y',
+  data:{
+    labels:['Salchichas','Jamonada','Pollo','Picadillo','Jamón','C.Res','Chorizo','Hígado','Pechuga','Huevos'],
+    datasets:[{
+      data:[95,55,53,45,30,18,10,-6,-2,-20],
+      backgroundColor:d=>d.raw>=0?'rgba(0,212,170,.75)':'rgba(255,107,107,.75)',
+      borderRadius:3
+    }]
+  },
+  options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},
+    scales:{x:{ticks:{color:tc},grid:{color:gc}},y:{ticks:{color:tc,font:{size:10}},grid:{display:false}}}}
+});
+
+const prods=[
+  {cod:'1000001',cat:'Proteínas',desc:'Pollo',min:100,inv:53},
+  {cod:'1000002',cat:'Proteínas',desc:'Picadillo',min:60,inv:45},
+  {cod:'1000003',cat:'Proteínas',desc:'Hígado',min:20,inv:-6},
+  {cod:'1000004',cat:'Proteínas',desc:'Pechuga de pollo',min:5,inv:-2},
+  {cod:'1000005',cat:'Proteínas',desc:'Huevos',min:30,inv:-20},
+  {cod:'1000006',cat:'Proteínas',desc:'Salchichas',min:40,inv:95},
+  {cod:'1000007',cat:'Proteínas',desc:'Carne de Res',min:10,inv:18},
+  {cod:'1000008',cat:'Proteínas',desc:'Jamón',min:15,inv:30},
+  {cod:'1000009',cat:'Proteínas',desc:'Chorizo',min:15,inv:10},
+  {cod:'1000010',cat:'Proteínas',desc:'Jamonada',min:15,inv:55},
+  {cod:'2000001',cat:'Bebidas',desc:'Refresco lata',min:48,inv:0},
+  {cod:'2000002',cat:'Bebidas',desc:'Refresco pomo',min:24,inv:0},
+  {cod:'2000003',cat:'Bebidas',desc:'Jugos',min:72,inv:0},
+  {cod:'2000004',cat:'Bebidas',desc:'Agua de melón Ritz',min:48,inv:0},
+  {cod:'2000005',cat:'Bebidas',desc:'Malta guajira',min:48,inv:0},
+  {cod:'2000006',cat:'Bebidas',desc:'Jugos de lata',min:72,inv:0},
+  {cod:'3000001',cat:'Bebidas alcohólicas',desc:'Whisky',min:12,inv:0},
+  {cod:'3000002',cat:'Bebidas alcohólicas',desc:'Vodka',min:12,inv:0},
+  {cod:'3000003',cat:'Bebidas alcohólicas',desc:'Cerveza',min:72,inv:0},
+  {cod:'3000004',cat:'Bebidas alcohólicas',desc:'Ron nacional',min:12,inv:0},
+  {cod:'3000005',cat:'Bebidas alcohólicas',desc:'Ron importado',min:12,inv:0},
+  {cod:'3000006',cat:'Bebidas alcohólicas',desc:'Cerveza por caja',min:5,inv:0},
+  {cod:'4000001',cat:'Granos',desc:'Arroz saco',min:10,inv:0},
+  {cod:'4000002',cat:'Granos',desc:'Arroz bolsas',min:25,inv:0},
+  {cod:'4000004',cat:'Granos',desc:'Arroz importado',min:20,inv:0},
+  {cod:'4000005',cat:'Granos',desc:'Frijoles saco',min:2,inv:0},
+  {cod:'4000006',cat:'Granos',desc:'Frijoles',min:25,inv:0},
+  {cod:'4000007',cat:'Granos',desc:'Frijoles importados',min:20,inv:0},
+  {cod:'5000001',cat:'Productos procesados',desc:'Galletas paquete grande',min:12,inv:0},
+  {cod:'5000002',cat:'Productos procesados',desc:'Galletas',min:21,inv:0},
+  {cod:'5000003',cat:'Productos procesados',desc:'Mayonesa',min:10,inv:0},
+  {cod:'5000004',cat:'Productos procesados',desc:'Pasta de bocaditos',min:10,inv:0},
+  {cod:'5000005',cat:'Productos procesados',desc:'Leche condensada',min:24,inv:0},
+  {cod:'5000006',cat:'Productos procesados',desc:'Pasta de tomates',min:24,inv:0},
+  {cod:'5000007',cat:'Productos procesados',desc:'Aceite 900 ml',min:80,inv:0},
+  {cod:'5000008',cat:'Productos procesados',desc:'Aceite 1 Lt',min:80,inv:0},
+  {cod:'5000009',cat:'Productos procesados',desc:'Salsa para pizzas',min:24,inv:0},
+  {cod:'5000010',cat:'Productos procesados',desc:'Café',min:25,inv:0},
+  {cod:'5000011',cat:'Productos procesados',desc:'Comino',min:5,inv:0},
+  {cod:'5000012',cat:'Productos procesados',desc:'Sazón Completo',min:5,inv:0},
+  {cod:'6000001',cat:'Cereales y Pastas',desc:'Harina',min:90,inv:0},
+  {cod:'6000002',cat:'Cereales y Pastas',desc:'Harina saco',min:20,inv:0},
+  {cod:'6000003',cat:'Cereales y Pastas',desc:'Spaguettis 500 gr',min:10,inv:0},
+  {cod:'6000004',cat:'Cereales y Pastas',desc:'Spaguettis 350 gr',min:10,inv:0},
+  {cod:'6000005',cat:'Cereales y Pastas',desc:'Coditos',min:10,inv:0},
+  {cod:'6000006',cat:'Cereales y Pastas',desc:'Fideos',min:10,inv:0},
+  {cod:'7000001',cat:'Higiene',desc:'Jabón',min:30,inv:0},
+  {cod:'7000002',cat:'Higiene',desc:'Detergente',min:20,inv:0},
+];
+
+function estado(inv,min){
+  if(inv>0&&inv>=min) return {key:'ok',pill:'<span class="pill p-ok">OK</span>'};
+  if(inv>0&&inv<min) return {key:'warn',pill:'<span class="pill p-warn">Solicitar</span>'};
+  return {key:'danger',pill:'<span class="pill p-danger">Sin stock</span>'};
+}
+
+function renderInv(data){
+  document.getElementById('fil-cnt').textContent=data.length+' prods.';
+  document.getElementById('tbody-inv').innerHTML=data.map(p=>{
+    const e=estado(p.inv,p.min);
+    const dif=p.inv-p.min;
+    return `<tr>
+      <td style="color:var(--muted);font-size:.76rem;">${p.cod}</td>
+      <td style="color:var(--muted);">${p.cat}</td>
+      <td style="font-weight:600;">${p.desc}</td>
+      <td class="num">${p.min}</td>
+      <td class="num ${p.inv<0?'num-danger':p.inv<p.min?'num-warn':'num-ok'}">${p.inv}</td>
+      <td class="num ${dif<0?'num-danger':'num-ok'}">${dif>=0?'+'+dif:dif}</td>
+      <td>${e.pill}</td>
+    </tr>`;
+  }).join('');
+}
+renderInv(prods);
+
+function filtrar(){
+  const cat=document.getElementById('fil-cat').value;
+  const est=document.getElementById('fil-est').value;
+  const q=document.getElementById('fil-q').value.toLowerCase();
+  renderInv(prods.filter(p=>{
+    if(cat&&p.cat!==cat) return false;
+    if(est&&estado(p.inv,p.min).key!==est) return false;
+    if(q&&!p.desc.toLowerCase().includes(q)) return false;
+    return true;
+  }));
+}
+
+const movs=[
+  {f:'01 ene',prod:'Pollo',tipo:'ENTRADA',cant:100},
+  {f:'02 ene',prod:'Pollo',tipo:'SALIDA',cant:47},
+  {f:'03 ene',prod:'Picadillo',tipo:'ENTRADA',cant:60},
+  {f:'03 ene',prod:'Picadillo',tipo:'SALIDA',cant:15},
+  {f:'04 ene',prod:'Hígado',tipo:'SALIDA',cant:6},
+  {f:'05 ene',prod:'Pechuga de pollo',tipo:'SALIDA',cant:2},
+  {f:'06 ene',prod:'Huevos',tipo:'SALIDA',cant:20},
+  {f:'07 ene',prod:'Salchichas',tipo:'ENTRADA',cant:100},
+  {f:'07 ene',prod:'Salchichas',tipo:'SALIDA',cant:5},
+  {f:'08 ene',prod:'Carne de Res',tipo:'ENTRADA',cant:20},
+  {f:'08 ene',prod:'Carne de Res',tipo:'SALIDA',cant:2},
+  {f:'09 ene',prod:'Jamón',tipo:'ENTRADA',cant:35},
+  {f:'09 ene',prod:'Jamón',tipo:'SALIDA',cant:5},
+  {f:'10 ene',prod:'Chorizo',tipo:'ENTRADA',cant:20},
+  {f:'10 ene',prod:'Chorizo',tipo:'SALIDA',cant:10},
+  {f:'11 ene',prod:'Jamonada',tipo:'ENTRADA',cant:60},
+  {f:'11 ene',prod:'Jamonada',tipo:'SALIDA',cant:5},
+];
+document.getElementById('lista-mv').innerHTML=movs.map(m=>`
+  <div class="mv-row">
+    <div class="mv-fecha">${m.f}</div>
+    <div class="mv-prod">${m.prod}</div>
+    <span class="pill ${m.tipo==='ENTRADA'?'p-ok':'p-danger'}">${m.tipo}</span>
+    <div class="mv-cant ${m.tipo==='ENTRADA'?'num-ok':'num-danger'}">${m.tipo==='ENTRADA'?'+':'−'}${m.cant}</div>
+  </div>`).join('');
+
+// === DATOS EN VIVO — GOOGLE SHEETS ===
+const SHEET_ID="1MkPNC0xah6UawbsM9aGvAhjA7Q_AkCl1";
+const GIDS_LIVE={PRODUCTOS:"2053103584",REGISTRO:"1881505840"};
+const CSV_LIVE=gid=>`https://docs.google.com/spreadsheets/d/${SHEET_ID}/export?format=csv&gid=${gid}`;
+
+function parseCSVLive(text){
+  return text.trim().split("\n").map(l=>{
+    const cols=[];let cur="",inQ=false;
+    for(const ch of l){
+      if(ch==='"'){inQ=!inQ;}
+      else if(ch===','&&!inQ){cols.push(cur.trim());cur="";}
+      else cur+=ch;
+    }
+    cols.push(cur.trim());return cols;
+  });
+}
+
+function buildProds(csv){
+  const data=[];
+  for(const r of parseCSVLive(csv)){
+    const code=parseInt(r[0]);
+    if(!isNaN(code)&&code>0)
+      data.push({cod:r[0],cat:r[1]||"",desc:r[2]||"",min:parseFloat(r[5])||0,inv:parseFloat(r[6])||0});
+  }
+  return data;
+}
+
+function buildMovs(csv){
+  const data=[];
+  for(const r of parseCSVLive(csv)){
+    const num=parseInt(r[0]);
+    if(!isNaN(num)&&num>0&&r[1]&&r[2]){
+      const isE=r[2]==="ENTRADA";
+      data.push({f:r[1],prod:r[4]||"",tipo:r[2],cant:parseFloat(isE?r[7]:r[8])||0});
+    }
+  }
+  return data;
+}
+
+function refreshKPIs(lp,lm){
+  const sinStock=lp.filter(p=>p.inv<=0).length;
+  const solicitar=lp.filter(p=>p.inv>0&&p.inv<p.min).length;
+  const correcto=lp.filter(p=>p.inv>0&&p.inv>=p.min).length;
+  const totalE=lm.filter(m=>m.tipo==='ENTRADA').reduce((a,m)=>a+m.cant,0);
+  const totalS=lm.filter(m=>m.tipo==='SALIDA').reduce((a,m)=>a+m.cant,0);
+  const vals=document.querySelectorAll('.kpi-val');
+  if(vals[0])vals[0].textContent=sinStock;
+  if(vals[1])vals[1].textContent=solicitar;
+  if(vals[2])vals[2].textContent=correcto;
+  if(vals[3])vals[3].textContent=lm.length;
+  const subs=document.querySelectorAll('.kpi-sub');
+  if(subs[0])subs[0].textContent=Math.round(sinStock/lp.length*100)+'% del catálogo vacío';
+  if(subs[3])subs[3].textContent=`${totalE} entradas · ${totalS} salidas`;
+  document.querySelector('.hbadge').textContent=lp.length+' PRODUCTOS';
+  document.querySelector('.fecha-txt').textContent='Datos en vivo · Google Sheets';
+}
+
+async function initLive(){
+  try{
+    const [csvP,csvR]=await Promise.all([
+      fetch(CSV_LIVE(GIDS_LIVE.PRODUCTOS)).then(r=>{if(!r.ok)throw Error(r.status);return r.text();}),
+      fetch(CSV_LIVE(GIDS_LIVE.REGISTRO)).then(r=>{if(!r.ok)throw Error(r.status);return r.text();})
+    ]);
+    const lp=buildProds(csvP);
+    const lm=buildMovs(csvR);
+    if(lp.length>0){
+      renderInv(lp);
+      document.getElementById('fil-cnt').textContent=lp.length+' prods.';
+      document.getElementById('lista-mv').innerHTML=lm.slice(0,30).map(m=>`
+        <div class="mv-row">
+          <div class="mv-fecha">${m.f}</div>
+          <div class="mv-prod">${m.prod}</div>
+          <span class="pill ${m.tipo==='ENTRADA'?'p-ok':'p-danger'}">${m.tipo}</span>
+          <div class="mv-cant ${m.tipo==='ENTRADA'?'num-ok':'num-danger'}">${m.tipo==='ENTRADA'?'+':'−'}${m.cant}</div>
+        </div>`).join('');
+      refreshKPIs(lp,lm);
+    }
+  }catch(e){
+    console.warn('Google Sheets no disponible — mostrando datos locales:',e.message);
+  }
+}
+
+initLive();
+</script>
