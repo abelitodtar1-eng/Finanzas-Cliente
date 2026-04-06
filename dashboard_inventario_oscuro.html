@@ -11,6 +11,16 @@ header h1 span{color:var(--accent);}
 .hright{display:flex;align-items:center;gap:12px;}
 .fecha-txt{color:var(--muted);font-size:.82rem;}
 
+.fecha-filtro{display:flex;align-items:center;gap:6px;padding:6px 10px;background:rgba(108,99,255,.06);border:1px solid var(--border);border-radius:10px;}
+.fecha-filtro label{font-size:.7rem;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;white-space:nowrap;}
+.fbtn{background:transparent;border:1px solid var(--border);border-radius:6px;color:var(--muted);font-size:.76rem;font-weight:600;padding:4px 10px;cursor:pointer;transition:all .15s;}
+.fbtn:hover{color:var(--text);border-color:var(--accent);}
+.fbtn.active{background:var(--accent);color:#fff;border-color:var(--accent);}
+.fbtn-sep{width:1px;height:16px;background:var(--border);}
+input[type=date].fpick{background:var(--bg);border:1px solid var(--border);border-radius:6px;color:var(--text);font-size:.76rem;padding:4px 8px;outline:none;cursor:pointer;}
+input[type=date].fpick:focus{border-color:var(--accent);}
+input[type=date].fpick::-webkit-calendar-picker-indicator{filter:invert(.5);}
+
 .tabs{display:flex;gap:4px;padding:16px 28px 0;background:var(--card);border-bottom:1px solid var(--border);}
 .tab{padding:8px 20px;border-radius:8px 8px 0 0;cursor:pointer;font-size:.88rem;font-weight:600;color:var(--muted);background:transparent;border:none;border-bottom:2px solid transparent;transition:all .2s;}
 .tab.active{color:var(--accent);border-bottom-color:var(--accent);background:rgba(108,99,255,.08);}
@@ -124,6 +134,14 @@ tr:hover td{background:rgba(255,255,255,.02);}
   <div class="hright">
     <span class="fecha-txt">Enero 2026 · Almacén General</span>
     <span class="hbadge">48 PRODUCTOS</span>
+    <div class="fecha-filtro">
+      <label>Ventas:</label>
+      <button class="fbtn active" onclick="setFiltroFecha('hoy',this)">Hoy</button>
+      <button class="fbtn" onclick="setFiltroFecha('semana',this)">Semana</button>
+      <button class="fbtn" onclick="setFiltroFecha('mes',this)">Mes</button>
+      <div class="fbtn-sep"></div>
+      <input type="date" class="fpick" id="fpick-fecha" onchange="setFiltroFecha('custom',null,this.value)" title="Seleccionar fecha">
+    </div>
   </div>
 </header>
 
@@ -579,6 +597,7 @@ function renderRanking(data){
     [...lista].reverse().slice(0,5).map((r,i)=>rowHTML(r,i)).join('');
 }
 
+_allMovs=movs;
 renderChartMovProd(movs);
 renderRanking(movs);
 
@@ -658,20 +677,80 @@ async function initLive(){
     if(lp.length>0){
       renderInv(lp);
       document.getElementById('fil-cnt').textContent=lp.length+' prods.';
-      document.getElementById('lista-mv').innerHTML=lm.slice(0,30).map(m=>`
+      refreshKPIs(lp,lm);
+      _allMovs=lm;
+      aplicarFiltro(_filtroActivo);
+    }
+  }catch(e){
+    console.warn('Google Sheets no disponible — mostrando datos locales:',e.message);
+  }
+}
+
+// === FILTRO DE FECHAS ===
+let _allMovs = [];
+let _filtroActivo = 'hoy';
+
+function isoHoy(){ return new Date().toISOString().slice(0,10); }
+function isoHace(dias){ const d=new Date(); d.setDate(d.getDate()-dias); return d.toISOString().slice(0,10); }
+
+function parseFecha(str){
+  // Formato ISO: "2026-01-05" → ok directo
+  if(/^\d{4}-\d{2}-\d{2}$/.test(str)) return str;
+  // Formato "05 ene" → convertir aproximado (usa año actual)
+  const meses={ene:'01',feb:'02',mar:'03',abr:'04',may:'05',jun:'06',jul:'07',ago:'08',sep:'09',oct:'10',nov:'11',dic:'12'};
+  const m=str.trim().match(/^(\d{1,2})\s+(\w{3})$/);
+  if(m) return `${new Date().getFullYear()}-${meses[m[2].toLowerCase()]||'01'}-${m[1].padStart(2,'0')}`;
+  return null;
+}
+
+function filtrarMovs(lista, filtro, fechaCustom){
+  const hoy=isoHoy();
+  return lista.filter(m=>{
+    const f=parseFecha(m.f);
+    if(!f) return true; // si no se puede parsear, incluir
+    if(filtro==='hoy')   return f===hoy;
+    if(filtro==='semana') return f>=isoHace(7)&&f<=hoy;
+    if(filtro==='mes')   return f>=isoHace(30)&&f<=hoy;
+    if(filtro==='custom'&&fechaCustom) return f===fechaCustom;
+    return true;
+  });
+}
+
+function aplicarFiltro(filtro, fechaCustom){
+  if(!_allMovs.length) return;
+  const filtered=filtrarMovs(_allMovs, filtro, fechaCustom);
+
+  // Actualizar lista movimientos
+  document.getElementById('lista-mv').innerHTML=filtered.length
+    ? filtered.slice(0,30).map(m=>`
         <div class="mv-row">
           <div class="mv-fecha">${m.f}</div>
           <div class="mv-prod">${m.prod}</div>
           <span class="pill ${m.tipo==='ENTRADA'?'p-ok':'p-danger'}">${m.tipo}</span>
           <div class="mv-cant ${m.tipo==='ENTRADA'?'num-ok':'num-danger'}">${m.tipo==='ENTRADA'?'+':'−'}${m.cant}</div>
-        </div>`).join('');
-      refreshKPIs(lp,lm);
-      renderChartMovProd(lm);
-      renderRanking(lm);
-    }
-  }catch(e){
-    console.warn('Google Sheets no disponible — mostrando datos locales:',e.message);
-  }
+        </div>`).join('')
+    : '<div style="color:var(--muted);font-size:.82rem;padding:20px 0;text-align:center;">Sin movimientos en este período</div>';
+
+  // Actualizar KPIs movimientos
+  const totalE=filtered.filter(m=>m.tipo==='ENTRADA').reduce((a,m)=>a+m.cant,0);
+  const totalS=filtered.filter(m=>m.tipo==='SALIDA').reduce((a,m)=>a+m.cant,0);
+  const vals=document.querySelectorAll('#view-movimientos .kpi-val');
+  if(vals[0])vals[0].textContent=filtered.length;
+  if(vals[1])vals[1].textContent=totalE;
+  if(vals[2])vals[2].textContent=totalS;
+  if(vals[3])vals[3].textContent=totalE-totalS>=0?`+${totalE-totalS}`:totalE-totalS;
+
+  renderChartMovProd(filtered);
+  renderRanking(filtered);
+}
+
+function setFiltroFecha(filtro, btn, fechaCustom){
+  _filtroActivo=filtro;
+  // Actualizar botones activos
+  document.querySelectorAll('.fbtn').forEach(b=>b.classList.remove('active'));
+  if(btn) btn.classList.add('active');
+  if(filtro!=='custom') document.getElementById('fpick-fecha').value='';
+  aplicarFiltro(filtro, fechaCustom);
 }
 
 initLive();
