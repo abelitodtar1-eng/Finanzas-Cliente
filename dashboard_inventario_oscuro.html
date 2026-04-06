@@ -11,16 +11,6 @@ header h1 span{color:var(--accent);}
 .hright{display:flex;align-items:center;gap:12px;}
 .fecha-txt{color:var(--muted);font-size:.82rem;}
 
-.fecha-filtro{display:flex;align-items:center;gap:6px;padding:6px 10px;background:rgba(108,99,255,.06);border:1px solid var(--border);border-radius:10px;}
-.fecha-filtro label{font-size:.7rem;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;white-space:nowrap;}
-.fbtn{background:transparent;border:1px solid var(--border);border-radius:6px;color:var(--muted);font-size:.76rem;font-weight:600;padding:4px 10px;cursor:pointer;transition:all .15s;}
-.fbtn:hover{color:var(--text);border-color:var(--accent);}
-.fbtn.active{background:var(--accent);color:#fff;border-color:var(--accent);}
-.fbtn-sep{width:1px;height:16px;background:var(--border);}
-input[type=date].fpick{background:var(--bg);border:1px solid var(--border);border-radius:6px;color:var(--text);font-size:.76rem;padding:4px 8px;outline:none;cursor:pointer;}
-input[type=date].fpick:focus{border-color:var(--accent);}
-input[type=date].fpick::-webkit-calendar-picker-indicator{filter:invert(.5);}
-
 .tabs{display:flex;gap:4px;padding:16px 28px 0;background:var(--card);border-bottom:1px solid var(--border);}
 .tab{padding:8px 20px;border-radius:8px 8px 0 0;cursor:pointer;font-size:.88rem;font-weight:600;color:var(--muted);background:transparent;border:none;border-bottom:2px solid transparent;transition:all .2s;}
 .tab.active{color:var(--accent);border-bottom-color:var(--accent);background:rgba(108,99,255,.08);}
@@ -115,20 +105,6 @@ tr:hover td{background:rgba(255,255,255,.02);}
 .mv-prod{flex:1;color:var(--text);font-weight:500;}
 .mv-cant{min-width:50px;text-align:right;font-weight:700;}
 
-.day-cards{display:flex;gap:10px;overflow-x:auto;padding-bottom:8px;margin-bottom:18px;scrollbar-width:thin;scrollbar-color:var(--border) transparent;}
-.day-card{min-width:130px;background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:14px 16px;cursor:pointer;transition:all .15s;flex-shrink:0;}
-.day-card:hover{border-color:var(--accent);}
-.day-card.selected{border-color:var(--accent);background:rgba(108,99,255,.1);}
-.day-card-date{font-size:.76rem;color:var(--muted);margin-bottom:6px;font-weight:600;}
-.day-card-e{font-size:1.1rem;font-weight:700;color:var(--accent2);}
-.day-card-s{font-size:.82rem;color:var(--accent3);margin-top:2px;}
-.day-card-badge{display:inline-block;font-size:.65rem;font-weight:700;padding:2px 7px;border-radius:10px;margin-top:6px;}
-.dcb-pos{background:rgba(0,212,170,.15);color:var(--accent2);}
-.dcb-neg{background:rgba(255,107,107,.15);color:var(--accent3);}
-
-.tbl-scroll{overflow-x:auto;}
-.tbl-scroll table{min-width:500px;}
-
 .sect-sep{font-size:.7rem;color:var(--muted);text-transform:uppercase;letter-spacing:.07em;margin:20px 0 12px;border-bottom:1px solid var(--border);padding-bottom:6px;}
 
 .legend{display:flex;flex-wrap:wrap;gap:12px;margin-bottom:10px;font-size:.78rem;color:var(--muted);}
@@ -144,7 +120,7 @@ tr:hover td{background:rgba(255,255,255,.02);}
 <div class="db">
 
 <header>
-  <h1><span>Finanzas</span> — Panel de control</h1>
+  <h1><span>Invent</span>Bot — Panel de control</h1>
   <div class="hright">
     <span class="fecha-txt">Enero 2026 · Almacén General</span>
     <span class="hbadge">48 PRODUCTOS</span>
@@ -284,53 +260,11 @@ tr:hover td{background:rgba(255,255,255,.02);}
 
 <!-- ══ MOVIMIENTOS ══ -->
 <div class="view" id="view-movimientos">
-
-  <div class="fecha-filtro" style="margin-bottom:18px;">
-    <label>Ventas por fecha:</label>
-    <button class="fbtn active" id="fbtn-hoy">Hoy</button>
-    <button class="fbtn" id="fbtn-semana">Semana</button>
-    <button class="fbtn" id="fbtn-mes">Mes</button>
-    <div class="fbtn-sep"></div>
-    <input type="date" class="fpick" id="fpick-fecha" title="Seleccionar fecha">
-  </div>
-
   <div class="kpi-grid">
     <div class="kpi" style="--kpi-color:#6c63ff"><div class="kpi-lbl">Total movimientos</div><div class="kpi-val">17</div><div class="kpi-sub">01 – 11 enero</div></div>
     <div class="kpi" style="--kpi-color:#00d4aa"><div class="kpi-lbl">Total entradas</div><div class="kpi-val" style="color:var(--accent2)">395</div><div class="kpi-sub">unidades recibidas</div></div>
     <div class="kpi" style="--kpi-color:#ff6b6b"><div class="kpi-lbl">Total salidas</div><div class="kpi-val" style="color:var(--accent3)">117</div><div class="kpi-sub">unidades despachadas</div></div>
     <div class="kpi" style="--kpi-color:#ffd166"><div class="kpi-lbl">Balance neto</div><div class="kpi-val" style="color:var(--accent2)">+278</div><div class="kpi-sub">unidades retenidas</div></div>
-  </div>
-
-  <!-- Tarjetas por día -->
-  <div class="day-cards" id="day-cards"></div>
-
-  <!-- Tabla resumen diario -->
-  <div class="tbl-card">
-    <div class="tbl-header"><h3>📅 Ventas diarias detalladas</h3></div>
-    <div class="tbl-scroll">
-      <table>
-        <thead><tr>
-          <th>Fecha</th>
-          <th class="num">Entradas</th>
-          <th class="num">Salidas</th>
-          <th class="num">Balance</th>
-          <th class="num">Movimientos</th>
-          <th>Estado</th>
-        </tr></thead>
-        <tbody id="tbody-diario"></tbody>
-      </table>
-    </div>
-  </div>
-
-  <!-- Tabla unidades por producto/día -->
-  <div class="tbl-card">
-    <div class="tbl-header"><h3>📦 Unidades por producto y día</h3></div>
-    <div class="tbl-scroll">
-      <table>
-        <thead id="thead-unidades"></thead>
-        <tbody id="tbody-unidades"></tbody>
-      </table>
-    </div>
   </div>
 
   <div class="grid2">
@@ -339,29 +273,8 @@ tr:hover td{background:rgba(255,255,255,.02);}
       <div id="lista-mv"></div>
     </div>
     <div class="chart-card">
-      <h3>Movimientos por producto</h3>
-      <div class="legend">
-        <span><span class="lsq" style="background:rgba(0,212,170,.8);"></span>Entradas</span>
-        <span><span class="lsq" style="background:rgba(255,107,107,.8);"></span>Salidas</span>
-      </div>
-      <div class="chart-wrap h260"><canvas id="c-movprod"></canvas></div>
-    </div>
-  </div>
-
-  <div class="grid2">
-    <div class="tbl-card" style="margin-bottom:0;">
-      <div class="tbl-header"><h3>🔥 Productos más vendidos</h3></div>
-      <table>
-        <thead><tr><th>#</th><th>Producto</th><th class="num">Salidas</th><th class="num">Entradas</th><th class="num">% Consumo</th></tr></thead>
-        <tbody id="tbody-mas"></tbody>
-      </table>
-    </div>
-    <div class="tbl-card" style="margin-bottom:0;">
-      <div class="tbl-header"><h3>📦 Productos menos vendidos</h3></div>
-      <table>
-        <thead><tr><th>#</th><th>Producto</th><th class="num">Salidas</th><th class="num">Entradas</th><th class="num">% Consumo</th></tr></thead>
-        <tbody id="tbody-menos"></tbody>
-      </table>
+      <h3>Balance neto por producto</h3>
+      <div class="chart-wrap h260"><canvas id="c3"></canvas></div>
     </div>
   </div>
 </div>
@@ -370,7 +283,7 @@ tr:hover td{background:rgba(255,255,255,.02);}
 <div class="view" id="view-decisiones">
   <div class="grid2">
     <div class="chart-card">
-      <div class="role-tag rt-owner">Señor(Empresa)</div>
+      <div class="role-tag rt-owner">ROL 1 — DUEÑO DE EMPRESA</div>
       <h3 style="margin-bottom:14px;">Plan de compras urgente</h3>
 
       <div class="alert-block al-r">
@@ -397,7 +310,7 @@ tr:hover td{background:rgba(255,255,255,.02);}
     </div>
 
     <div class="chart-card">
-      <div class="role-tag rt-seller">Administrador(Empresa)</div>
+      <div class="role-tag rt-seller">ROL 2 — SUPER VENDEDOR</div>
       <h3 style="margin-bottom:14px;">Oportunidades de negocio</h3>
 
       <div class="alert-block al-r">
@@ -484,6 +397,19 @@ new Chart(document.getElementById('c2'),{
     scales:{x:{ticks:{color:tc},grid:{color:gc}},y:{ticks:{color:tc,font:{size:11}},grid:{display:false}}}}
 });
 
+new Chart(document.getElementById('c3'),{
+  type:'bar',indexAxis:'y',
+  data:{
+    labels:['Salchichas','Jamonada','Pollo','Picadillo','Jamón','C.Res','Chorizo','Hígado','Pechuga','Huevos'],
+    datasets:[{
+      data:[95,55,53,45,30,18,10,-6,-2,-20],
+      backgroundColor:d=>d.raw>=0?'rgba(0,212,170,.75)':'rgba(255,107,107,.75)',
+      borderRadius:3
+    }]
+  },
+  options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},
+    scales:{x:{ticks:{color:tc},grid:{color:gc}},y:{ticks:{color:tc,font:{size:10}},grid:{display:false}}}}
+});
 
 const prods=[
   {cod:'1000001',cat:'Proteínas',desc:'Pollo',min:100,inv:53},
@@ -591,144 +517,6 @@ const movs=[
   {f:'11 ene',prod:'Jamonada',tipo:'ENTRADA',cant:60},
   {f:'11 ene',prod:'Jamonada',tipo:'SALIDA',cant:5},
 ];
-// Agrupa movimientos por fecha → { fecha: { entradas, salidas, movs, prods:{prod:cant} } }
-function buildDailyData(data){
-  const byDate = {};
-  for(const m of data){
-    const f = parseFecha(m.f) || m.f;
-    if(!byDate[f]) byDate[f] = {fecha:f, display:m.fDisplay||m.f, entradas:0, salidas:0, movs:0, prods:{}};
-    if(m.tipo==='ENTRADA'){ byDate[f].entradas += m.cant; byDate[f].prods[m.prod] = (byDate[f].prods[m.prod]||0) + m.cant; }
-    else { byDate[f].salidas += m.cant; }
-    byDate[f].movs++;
-  }
-  return Object.values(byDate).sort((a,b)=>a.fecha.localeCompare(b.fecha));
-}
-
-let _diaSeleccionado = null;
-
-function renderDayCards(daily){
-  const container = document.getElementById('day-cards');
-  if(!daily.length){ container.innerHTML='<div style="color:var(--muted);font-size:.82rem;padding:10px 0;">Sin datos en el período</div>'; return; }
-  container.innerHTML = daily.map((d,i) => {
-    const bal = d.entradas - d.salidas;
-    const pos = bal >= 0;
-    return `<div class="day-card ${i===0?'selected':''}" onclick="selectDayCard(this,'${d.fecha}')">
-      <div class="day-card-date">${d.display||d.fecha}</div>
-      <div class="day-card-e">+${d.entradas}</div>
-      <div class="day-card-s">−${d.salidas}</div>
-      <span class="day-card-badge ${pos?'dcb-pos':'dcb-neg'}">${pos?'▲ +'+bal:'▼ '+bal}</span>
-    </div>`;
-  }).join('');
-  _diaSeleccionado = null;
-}
-
-function selectDayCard(el, fecha){
-  document.querySelectorAll('.day-card').forEach(c=>c.classList.remove('selected'));
-  el.classList.add('selected');
-  _diaSeleccionado = _diaSeleccionado===fecha ? null : fecha;
-  const base = _allMovs.length ? filtrarMovs(_allMovs, _filtroActivo, document.getElementById('fpick-fecha').value||null) : movs;
-  const sub = _diaSeleccionado ? base.filter(m=>(parseFecha(m.f)||m.f)===fecha) : base;
-  renderDailyTable(buildDailyData(sub));
-  renderUnitsTable(buildDailyData(sub));
-}
-
-function renderDailyTable(daily){
-  const tbody = document.getElementById('tbody-diario');
-  if(!daily.length){ tbody.innerHTML='<tr><td colspan="6" style="text-align:center;color:var(--muted);padding:18px;">Sin movimientos en este período</td></tr>'; return; }
-  tbody.innerHTML = daily.map(d=>{
-    const bal = d.entradas - d.salidas;
-    const pos = bal >= 0;
-    return `<tr>
-      <td style="font-weight:600;">${d.display||d.fecha}</td>
-      <td class="num num-ok">${d.entradas}</td>
-      <td class="num num-danger">${d.salidas}</td>
-      <td class="num ${pos?'num-ok':'num-danger'}" style="font-weight:700;">${pos?'+':''}${bal}</td>
-      <td class="num">${d.movs}</td>
-      <td><span class="pill ${pos?'p-ok':'p-danger'}">${pos?'▲ Positivo':'▼ Negativo'}</span></td>
-    </tr>`;
-  }).join('');
-}
-
-function renderUnitsTable(daily){
-  if(!daily.length){ document.getElementById('thead-unidades').innerHTML=''; document.getElementById('tbody-unidades').innerHTML=''; return; }
-  // Recopilar todos los productos
-  const allProds = [...new Set(daily.flatMap(d=>Object.keys(d.prods)))].sort();
-  if(!allProds.length){ document.getElementById('tbody-unidades').innerHTML='<tr><td style="color:var(--muted);padding:12px;">Sin entradas registradas</td></tr>'; return; }
-  document.getElementById('thead-unidades').innerHTML =
-    `<tr><th>Producto</th>${daily.map(d=>`<th class="num">${d.display||d.fecha}</th>`).join('')}<th class="num">TOTAL</th></tr>`;
-  document.getElementById('tbody-unidades').innerHTML = allProds.map(prod => {
-    const vals = daily.map(d=>d.prods[prod]||0);
-    const total = vals.reduce((a,b)=>a+b,0);
-    return `<tr>
-      <td style="font-weight:600;">${prod}</td>
-      ${vals.map(v=>`<td class="num ${v>0?'num-ok':''}">${v||'—'}</td>`).join('')}
-      <td class="num num-ok" style="font-weight:700;">${total}</td>
-    </tr>`;
-  }).join('');
-}
-
-let chartMovProd=null;
-function renderChartMovProd(data){
-  const resumen={};
-  for(const m of data){
-    if(!resumen[m.prod]) resumen[m.prod]={e:0,s:0};
-    if(m.tipo==='ENTRADA') resumen[m.prod].e+=m.cant;
-    else resumen[m.prod].s+=m.cant;
-  }
-  const prods=Object.keys(resumen);
-  const entradas=prods.map(p=>resumen[p].e);
-  const salidas=prods.map(p=>resumen[p].s);
-  if(chartMovProd) chartMovProd.destroy();
-  chartMovProd=new Chart(document.getElementById('c-movprod'),{
-    type:'bar',
-    data:{
-      labels:prods,
-      datasets:[
-        {label:'Entradas',data:entradas,backgroundColor:'rgba(0,212,170,.75)',borderRadius:4},
-        {label:'Salidas',data:salidas,backgroundColor:'rgba(255,107,107,.75)',borderRadius:4}
-      ]
-    },
-    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},
-      scales:{
-        x:{ticks:{color:tc,font:{size:10}},grid:{color:gc}},
-        y:{ticks:{color:tc},grid:{color:gc}}
-      }}
-  });
-}
-
-function renderRanking(data){
-  const resumen={};
-  for(const m of data){
-    if(!resumen[m.prod]) resumen[m.prod]={prod:m.prod,entradas:0,salidas:0};
-    if(m.tipo==='ENTRADA') resumen[m.prod].entradas+=m.cant;
-    else resumen[m.prod].salidas+=m.cant;
-  }
-  const lista=Object.values(resumen).map(r=>({
-    ...r, pct: r.entradas>0?Math.round(r.salidas/r.entradas*100):0
-  })).sort((a,b)=>b.salidas-a.salidas);
-
-  const rowHTML=(r,i)=>`<tr>
-    <td style="color:var(--muted);font-size:.76rem;">${i+1}</td>
-    <td style="font-weight:600;">${r.prod}</td>
-    <td class="num num-danger">${r.salidas}</td>
-    <td class="num num-ok">${r.entradas}</td>
-    <td class="num"><span class="pill ${r.pct>=80?'p-danger':r.pct>=50?'p-warn':'p-ok'}">${r.pct}%</span></td>
-  </tr>`;
-
-  document.getElementById('tbody-mas').innerHTML=
-    lista.slice(0,5).map((r,i)=>rowHTML(r,i)).join('');
-  document.getElementById('tbody-menos').innerHTML=
-    [...lista].reverse().slice(0,5).map((r,i)=>rowHTML(r,i)).join('');
-}
-
-_allMovs=movs;
-const _initDaily = buildDailyData(movs);
-renderDayCards(_initDaily);
-renderDailyTable(_initDaily);
-renderUnitsTable(_initDaily);
-renderChartMovProd(movs);
-renderRanking(movs);
-
 document.getElementById('lista-mv').innerHTML=movs.map(m=>`
   <div class="mv-row">
     <div class="mv-fecha">${m.f}</div>
@@ -754,45 +542,16 @@ function parseCSVLive(text){
   });
 }
 
-function buildProds(csv){
-  const data=[];
-  for(const r of parseCSVLive(csv)){
-    const code=parseInt(r[0]);
-    if(!isNaN(code)&&code>0)
-      data.push({cod:r[0],cat:r[1]||"",desc:r[2]||"",min:parseFloat(r[5])||0,inv:parseFloat(r[6])||0});
-  }
-  return data;
-}
-
-function buildMovs(csv){
-  const data=[];
-  for(const r of parseCSVLive(csv)){
-    const num=parseInt(r[0]);
-    if(!isNaN(num)&&num>0&&r[1]&&r[2]){
-      const isE=r[2]==="ENTRADA";
-      const fISO = parseFecha(r[1]) || r[1]; // normalizar a ISO, fallback al original
-      data.push({f:fISO, fDisplay:r[1], prod:r[4]||"",tipo:r[2],cant:parseFloat(isE?r[7]:r[8])||0});
-    }
-  }
-  return data;
-}
-
-function refreshKPIs(lp,lm){
-  const sinStock=lp.filter(p=>p.inv<=0).length;
-  const solicitar=lp.filter(p=>p.inv>0&&p.inv<p.min).length;
-  const correcto=lp.filter(p=>p.inv>0&&p.inv>=p.min).length;
-  const totalE=lm.filter(m=>m.tipo==='ENTRADA').reduce((a,m)=>a+m.cant,0);
-  const totalS=lm.filter(m=>m.tipo==='SALIDA').reduce((a,m)=>a+m.cant,0);
-  const vals=document.querySelectorAll('.kpi-val');
-  if(vals[0])vals[0].textContent=sinStock;
-  if(vals[1])vals[1].textContent=solicitar;
-  if(vals[2])vals[2].textContent=correcto;
-  if(vals[3])vals[3].textContent=lm.length;
-  const subs=document.querySelectorAll('.kpi-sub');
-  if(subs[0])subs[0].textContent=Math.round(sinStock/lp.length*100)+'% del catálogo vacío';
-  if(subs[3])subs[3].textContent=`${totalE} entradas · ${totalS} salidas`;
-  document.querySelector('.hbadge').textContent=lp.length+' PRODUCTOS';
-  document.querySelector('.fecha-txt').textContent='Datos en vivo · Google Sheets';
+function normFecha(str){
+  if(!str) return str;
+  str=str.trim();
+  if(/^\d{4}-\d{2}-\d{2}$/.test(str)) return str;
+  let m=str.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/);
+  if(m) return `${m[3]}-${m[2].padStart(2,'0')}-${m[1].padStart(2,'0')}`;
+  const mes={ene:'01',feb:'02',mar:'03',abr:'04',may:'05',jun:'06',jul:'07',ago:'08',sep:'09',oct:'10',nov:'11',dic:'12'};
+  m=str.match(/^(\d{1,2})\s+(\w{3})$/i);
+  if(m&&mes[m[2].toLowerCase()]) return `${new Date().getFullYear()}-${mes[m[2].toLowerCase()]}-${m[1].padStart(2,'0')}`;
+  return str;
 }
 
 async function initLive(){
@@ -801,142 +560,59 @@ async function initLive(){
       fetch(CSV_LIVE(GIDS_LIVE.PRODUCTOS)).then(r=>{if(!r.ok)throw Error(r.status);return r.text();}),
       fetch(CSV_LIVE(GIDS_LIVE.REGISTRO)).then(r=>{if(!r.ok)throw Error(r.status);return r.text();})
     ]);
-    const lp=buildProds(csvP);
-    const lm=buildMovs(csvR);
+
+    // Productos
+    const lp=[];
+    for(const r of parseCSVLive(csvP)){
+      const code=parseInt(r[0]);
+      if(!isNaN(code)&&code>0)
+        lp.push({cod:r[0],cat:r[1]||"",desc:r[2]||"",min:parseFloat(r[5])||0,inv:parseFloat(r[6])||0});
+    }
+
+    // Movimientos
+    const lm=[];
+    for(const r of parseCSVLive(csvR)){
+      const num=parseInt(r[0]);
+      if(!isNaN(num)&&num>0&&r[1]&&r[2]){
+        const isE=r[2]==="ENTRADA";
+        lm.push({f:normFecha(r[1]),prod:r[4]||"",tipo:r[2],cant:parseFloat(isE?r[7]:r[8])||0});
+      }
+    }
+
     if(lp.length>0){
+      // Actualizar tabla inventario
       renderInv(lp);
       document.getElementById('fil-cnt').textContent=lp.length+' prods.';
-      refreshKPIs(lp,lm);
-      _allMovs=lm;
-      aplicarFiltro(_filtroActivo);
-    }
-  }catch(e){
-    console.warn('Google Sheets no disponible — mostrando datos locales:',e.message);
-  }
-}
 
-// === FILTRO DE FECHAS ===
-let _allMovs = [];
-let _filtroActivo = 'todos';
-
-function isoHoy(){ return new Date().toISOString().slice(0,10); }
-function isoHace(dias){ const d=new Date(); d.setDate(d.getDate()-dias); return d.toISOString().slice(0,10); }
-
-function parseFecha(str){
-  if(!str) return null;
-  str = str.trim();
-
-  // ISO: 2026-01-11
-  if(/^\d{4}-\d{2}-\d{2}$/.test(str)) return str;
-
-  // DD/MM/YYYY o D/M/YYYY (formato Google Sheets español)
-  let m = str.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/);
-  if(m) return `${m[3]}-${m[2].padStart(2,'0')}-${m[1].padStart(2,'0')}`;
-
-  // YYYY/MM/DD
-  m = str.match(/^(\d{4})\/(\d{2})\/(\d{2})$/);
-  if(m) return `${m[1]}-${m[2]}-${m[3]}`;
-
-  // DD-MM-YYYY
-  m = str.match(/^(\d{1,2})-(\d{1,2})-(\d{4})$/);
-  if(m) return `${m[3]}-${m[2].padStart(2,'0')}-${m[1].padStart(2,'0')}`;
-
-  // "11 ene" o "11 enero" (datos estáticos)
-  const meses={ene:'01',enero:'01',feb:'02',febrero:'02',mar:'03',marzo:'03',
-    abr:'04',abril:'04',may:'05',mayo:'05',jun:'06',junio:'06',
-    jul:'07',julio:'07',ago:'08',agosto:'08',sep:'09',septiembre:'09',
-    oct:'10',octubre:'10',nov:'11',noviembre:'11',dic:'12',diciembre:'12'};
-  m = str.match(/^(\d{1,2})\s+(\w+)$/i);
-  if(m && meses[m[2].toLowerCase()])
-    return `${new Date().getFullYear()}-${meses[m[2].toLowerCase()]}-${m[1].padStart(2,'0')}`;
-
-  // Número serial Excel/Sheets (ej: 46042)
-  const serial = parseInt(str);
-  if(!isNaN(serial) && serial > 40000 && serial < 60000){
-    const d = new Date((serial - 25569) * 86400000);
-    return d.toISOString().slice(0,10);
-  }
-
-  return null;
-}
-
-function filtrarMovs(lista, filtro, fechaCustom){
-  if(filtro==='todos') return lista;
-  const hoy=isoHoy();
-  return lista.filter(m=>{
-    const f=parseFecha(m.f);
-    if(!f) return false;
-    if(filtro==='hoy')    return f===hoy;
-    if(filtro==='semana') return f>=isoHace(7) && f<=hoy;
-    if(filtro==='mes')    return f>=isoHace(30) && f<=hoy;
-    if(filtro==='custom') return f===fechaCustom;
-    return true;
-  });
-}
-
-function aplicarFiltro(filtro, fechaCustom){
-  const filtered = filtrarMovs(_allMovs, filtro, fechaCustom);
-
-  // Lista movimientos
-  document.getElementById('lista-mv').innerHTML = filtered.length
-    ? filtered.slice(0,30).map(m=>`
+      // Actualizar movimientos
+      document.getElementById('lista-mv').innerHTML=lm.slice(0,30).map(m=>`
         <div class="mv-row">
-          <div class="mv-fecha">${m.fDisplay||m.f}</div>
+          <div class="mv-fecha">${m.f}</div>
           <div class="mv-prod">${m.prod}</div>
           <span class="pill ${m.tipo==='ENTRADA'?'p-ok':'p-danger'}">${m.tipo}</span>
           <div class="mv-cant ${m.tipo==='ENTRADA'?'num-ok':'num-danger'}">${m.tipo==='ENTRADA'?'+':'−'}${m.cant}</div>
-        </div>`).join('')
-    : '<div style="color:var(--muted);font-size:.82rem;padding:20px 0;text-align:center;">Sin movimientos en este período</div>';
+        </div>`).join('');
 
-  // KPIs del tab movimientos
-  const totalE = filtered.filter(m=>m.tipo==='ENTRADA').reduce((a,m)=>a+m.cant,0);
-  const totalS = filtered.filter(m=>m.tipo==='SALIDA').reduce((a,m)=>a+m.cant,0);
-  const bal = totalE - totalS;
-  const kvs = document.querySelectorAll('#view-movimientos .kpi-val');
-  if(kvs[0]) kvs[0].textContent = filtered.length;
-  if(kvs[1]) kvs[1].textContent = totalE;
-  if(kvs[2]) kvs[2].textContent = totalS;
-  if(kvs[3]) kvs[3].textContent = (bal>=0?'+':'')+bal;
-
-  const daily = buildDailyData(filtered);
-  renderDayCards(daily);
-  renderDailyTable(daily);
-  renderUnitsTable(daily);
-  renderChartMovProd(filtered);
-  renderRanking(filtered);
+      // KPIs
+      const sinStock=lp.filter(p=>p.inv<=0).length;
+      const solicitar=lp.filter(p=>p.inv>0&&p.inv<p.min).length;
+      const correcto=lp.filter(p=>p.inv>0&&p.inv>=p.min).length;
+      const totalE=lm.filter(m=>m.tipo==='ENTRADA').reduce((a,m)=>a+m.cant,0);
+      const totalS=lm.filter(m=>m.tipo==='SALIDA').reduce((a,m)=>a+m.cant,0);
+      const vals=document.querySelectorAll('.kpi-val');
+      if(vals[0])vals[0].textContent=sinStock;
+      if(vals[1])vals[1].textContent=solicitar;
+      if(vals[2])vals[2].textContent=correcto;
+      if(vals[3])vals[3].textContent=lm.length;
+      const subs=document.querySelectorAll('.kpi-sub');
+      if(subs[0])subs[0].textContent=Math.round(sinStock/lp.length*100)+'% del catálogo vacío';
+      if(subs[3])subs[3].textContent=`${totalE} entradas · ${totalS} salidas`;
+      document.querySelector('.hbadge').textContent=lp.length+' PRODUCTOS';
+      document.querySelector('.fecha-txt').textContent='Datos en vivo · Google Sheets';
+    }
+  }catch(e){
+    console.warn('Google Sheets no disponible — datos locales:', e.message);
+  }
 }
-
-function activarBtn(id){
-  document.querySelectorAll('.fbtn').forEach(b=>b.classList.remove('active'));
-  const el=document.getElementById(id);
-  if(el) el.classList.add('active');
-}
-
-// Conectar botones
-document.getElementById('fbtn-hoy').addEventListener('click', function(){
-  _filtroActivo='hoy';
-  document.getElementById('fpick-fecha').value='';
-  activarBtn('fbtn-hoy');
-  aplicarFiltro('hoy');
-});
-document.getElementById('fbtn-semana').addEventListener('click', function(){
-  _filtroActivo='semana';
-  document.getElementById('fpick-fecha').value='';
-  activarBtn('fbtn-semana');
-  aplicarFiltro('semana');
-});
-document.getElementById('fbtn-mes').addEventListener('click', function(){
-  _filtroActivo='mes';
-  document.getElementById('fpick-fecha').value='';
-  activarBtn('fbtn-mes');
-  aplicarFiltro('mes');
-});
-document.getElementById('fpick-fecha').addEventListener('change', function(){
-  if(!this.value) return;
-  _filtroActivo='custom';
-  activarBtn('');
-  aplicarFiltro('custom', this.value);
-});
-
 initLive();
 </script>
