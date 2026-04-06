@@ -115,6 +115,20 @@ tr:hover td{background:rgba(255,255,255,.02);}
 .mv-prod{flex:1;color:var(--text);font-weight:500;}
 .mv-cant{min-width:50px;text-align:right;font-weight:700;}
 
+.day-cards{display:flex;gap:10px;overflow-x:auto;padding-bottom:8px;margin-bottom:18px;scrollbar-width:thin;scrollbar-color:var(--border) transparent;}
+.day-card{min-width:130px;background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:14px 16px;cursor:pointer;transition:all .15s;flex-shrink:0;}
+.day-card:hover{border-color:var(--accent);}
+.day-card.selected{border-color:var(--accent);background:rgba(108,99,255,.1);}
+.day-card-date{font-size:.76rem;color:var(--muted);margin-bottom:6px;font-weight:600;}
+.day-card-e{font-size:1.1rem;font-weight:700;color:var(--accent2);}
+.day-card-s{font-size:.82rem;color:var(--accent3);margin-top:2px;}
+.day-card-badge{display:inline-block;font-size:.65rem;font-weight:700;padding:2px 7px;border-radius:10px;margin-top:6px;}
+.dcb-pos{background:rgba(0,212,170,.15);color:var(--accent2);}
+.dcb-neg{background:rgba(255,107,107,.15);color:var(--accent3);}
+
+.tbl-scroll{overflow-x:auto;}
+.tbl-scroll table{min-width:500px;}
+
 .sect-sep{font-size:.7rem;color:var(--muted);text-transform:uppercase;letter-spacing:.07em;margin:20px 0 12px;border-bottom:1px solid var(--border);padding-bottom:6px;}
 
 .legend{display:flex;flex-wrap:wrap;gap:12px;margin-bottom:10px;font-size:.78rem;color:var(--muted);}
@@ -285,6 +299,38 @@ tr:hover td{background:rgba(255,255,255,.02);}
     <div class="kpi" style="--kpi-color:#00d4aa"><div class="kpi-lbl">Total entradas</div><div class="kpi-val" style="color:var(--accent2)">395</div><div class="kpi-sub">unidades recibidas</div></div>
     <div class="kpi" style="--kpi-color:#ff6b6b"><div class="kpi-lbl">Total salidas</div><div class="kpi-val" style="color:var(--accent3)">117</div><div class="kpi-sub">unidades despachadas</div></div>
     <div class="kpi" style="--kpi-color:#ffd166"><div class="kpi-lbl">Balance neto</div><div class="kpi-val" style="color:var(--accent2)">+278</div><div class="kpi-sub">unidades retenidas</div></div>
+  </div>
+
+  <!-- Tarjetas por día -->
+  <div class="day-cards" id="day-cards"></div>
+
+  <!-- Tabla resumen diario -->
+  <div class="tbl-card">
+    <div class="tbl-header"><h3>📅 Ventas diarias detalladas</h3></div>
+    <div class="tbl-scroll">
+      <table>
+        <thead><tr>
+          <th>Fecha</th>
+          <th class="num">Entradas</th>
+          <th class="num">Salidas</th>
+          <th class="num">Balance</th>
+          <th class="num">Movimientos</th>
+          <th>Estado</th>
+        </tr></thead>
+        <tbody id="tbody-diario"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Tabla unidades por producto/día -->
+  <div class="tbl-card">
+    <div class="tbl-header"><h3>📦 Unidades por producto y día</h3></div>
+    <div class="tbl-scroll">
+      <table>
+        <thead id="thead-unidades"></thead>
+        <tbody id="tbody-unidades"></tbody>
+      </table>
+    </div>
   </div>
 
   <div class="grid2">
@@ -545,6 +591,82 @@ const movs=[
   {f:'11 ene',prod:'Jamonada',tipo:'ENTRADA',cant:60},
   {f:'11 ene',prod:'Jamonada',tipo:'SALIDA',cant:5},
 ];
+// Agrupa movimientos por fecha → { fecha: { entradas, salidas, movs, prods:{prod:cant} } }
+function buildDailyData(data){
+  const byDate = {};
+  for(const m of data){
+    const f = parseFecha(m.f) || m.f;
+    if(!byDate[f]) byDate[f] = {fecha:f, display:m.fDisplay||m.f, entradas:0, salidas:0, movs:0, prods:{}};
+    if(m.tipo==='ENTRADA'){ byDate[f].entradas += m.cant; byDate[f].prods[m.prod] = (byDate[f].prods[m.prod]||0) + m.cant; }
+    else { byDate[f].salidas += m.cant; }
+    byDate[f].movs++;
+  }
+  return Object.values(byDate).sort((a,b)=>a.fecha.localeCompare(b.fecha));
+}
+
+let _diaSeleccionado = null;
+
+function renderDayCards(daily){
+  const container = document.getElementById('day-cards');
+  if(!daily.length){ container.innerHTML='<div style="color:var(--muted);font-size:.82rem;padding:10px 0;">Sin datos en el período</div>'; return; }
+  container.innerHTML = daily.map((d,i) => {
+    const bal = d.entradas - d.salidas;
+    const pos = bal >= 0;
+    return `<div class="day-card ${i===0?'selected':''}" onclick="selectDayCard(this,'${d.fecha}')">
+      <div class="day-card-date">${d.display||d.fecha}</div>
+      <div class="day-card-e">+${d.entradas}</div>
+      <div class="day-card-s">−${d.salidas}</div>
+      <span class="day-card-badge ${pos?'dcb-pos':'dcb-neg'}">${pos?'▲ +'+bal:'▼ '+bal}</span>
+    </div>`;
+  }).join('');
+  _diaSeleccionado = null;
+}
+
+function selectDayCard(el, fecha){
+  document.querySelectorAll('.day-card').forEach(c=>c.classList.remove('selected'));
+  el.classList.add('selected');
+  _diaSeleccionado = _diaSeleccionado===fecha ? null : fecha;
+  const base = _allMovs.length ? filtrarMovs(_allMovs, _filtroActivo, document.getElementById('fpick-fecha').value||null) : movs;
+  const sub = _diaSeleccionado ? base.filter(m=>(parseFecha(m.f)||m.f)===fecha) : base;
+  renderDailyTable(buildDailyData(sub));
+  renderUnitsTable(buildDailyData(sub));
+}
+
+function renderDailyTable(daily){
+  const tbody = document.getElementById('tbody-diario');
+  if(!daily.length){ tbody.innerHTML='<tr><td colspan="6" style="text-align:center;color:var(--muted);padding:18px;">Sin movimientos en este período</td></tr>'; return; }
+  tbody.innerHTML = daily.map(d=>{
+    const bal = d.entradas - d.salidas;
+    const pos = bal >= 0;
+    return `<tr>
+      <td style="font-weight:600;">${d.display||d.fecha}</td>
+      <td class="num num-ok">${d.entradas}</td>
+      <td class="num num-danger">${d.salidas}</td>
+      <td class="num ${pos?'num-ok':'num-danger'}" style="font-weight:700;">${pos?'+':''}${bal}</td>
+      <td class="num">${d.movs}</td>
+      <td><span class="pill ${pos?'p-ok':'p-danger'}">${pos?'▲ Positivo':'▼ Negativo'}</span></td>
+    </tr>`;
+  }).join('');
+}
+
+function renderUnitsTable(daily){
+  if(!daily.length){ document.getElementById('thead-unidades').innerHTML=''; document.getElementById('tbody-unidades').innerHTML=''; return; }
+  // Recopilar todos los productos
+  const allProds = [...new Set(daily.flatMap(d=>Object.keys(d.prods)))].sort();
+  if(!allProds.length){ document.getElementById('tbody-unidades').innerHTML='<tr><td style="color:var(--muted);padding:12px;">Sin entradas registradas</td></tr>'; return; }
+  document.getElementById('thead-unidades').innerHTML =
+    `<tr><th>Producto</th>${daily.map(d=>`<th class="num">${d.display||d.fecha}</th>`).join('')}<th class="num">TOTAL</th></tr>`;
+  document.getElementById('tbody-unidades').innerHTML = allProds.map(prod => {
+    const vals = daily.map(d=>d.prods[prod]||0);
+    const total = vals.reduce((a,b)=>a+b,0);
+    return `<tr>
+      <td style="font-weight:600;">${prod}</td>
+      ${vals.map(v=>`<td class="num ${v>0?'num-ok':''}">${v||'—'}</td>`).join('')}
+      <td class="num num-ok" style="font-weight:700;">${total}</td>
+    </tr>`;
+  }).join('');
+}
+
 let chartMovProd=null;
 function renderChartMovProd(data){
   const resumen={};
@@ -600,6 +722,10 @@ function renderRanking(data){
 }
 
 _allMovs=movs;
+const _initDaily = buildDailyData(movs);
+renderDayCards(_initDaily);
+renderDailyTable(_initDaily);
+renderUnitsTable(_initDaily);
 renderChartMovProd(movs);
 renderRanking(movs);
 
@@ -772,6 +898,10 @@ function aplicarFiltro(filtro, fechaCustom){
   if(kvs[2]) kvs[2].textContent = totalS;
   if(kvs[3]) kvs[3].textContent = (bal>=0?'+':'')+bal;
 
+  const daily = buildDailyData(filtered);
+  renderDayCards(daily);
+  renderDailyTable(daily);
+  renderUnitsTable(daily);
   renderChartMovProd(filtered);
   renderRanking(filtered);
 }
